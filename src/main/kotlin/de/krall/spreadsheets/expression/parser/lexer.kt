@@ -6,38 +6,44 @@ interface TokenSequence {
     fun nextToken(): Token?
 }
 
-class Lexer(val reader: Reader) {
+class Lexer(val input: Segment) : TokenSequence {
 
-    fun tokenize(input: String): TokenSequence {
-        return LazyTokenSequence(input)
-    }
+    private val reader = Reader(input.chars, input.offset, input.length)
 
-    private inner class LazyTokenSequence(input: String) : TokenSequence {
+    override fun nextToken(): Token? {
+        if (reader.isEof()) return null
 
-        private val reader = Reader(input)
+        val start = reader.bufferPosition
+        val kind = nextTokenKind()
+        val end = reader.bufferPosition
 
-        override fun nextToken(): Token? {
-            if (reader.isEof()) return null
+        val length = end - start
+        check(length > 0) { "lexer produced a token type, but did not consume any chars at position $start" }
 
-            val start = reader.bufferPosition
-            val kind = nextTokenKind()
-            val end = reader.bufferPosition
+        val segment = input.segment(start, length)
 
-            val length = end - start
-            check(length > 0) { "lexer produced a token type, but did not consume any chars at position $start" }
-
-            val segment = reader.segment(start, length)
-
-            return when (kind) {
-                is TokenKind.Normal -> Token(kind.type, segment)
-                is TokenKind.String -> Token(kind.type, segment, string = kind.string)
-                is TokenKind.Numeric -> Token(kind.type, segment, number = kind.number)
-            }
+        return when (kind) {
+            is TokenKind.Normal -> Token(kind.type, segment)
+            is TokenKind.String -> Token(kind.type, segment, string = kind.string)
+            is TokenKind.Numeric -> Token(kind.type, segment, number = kind.number)
         }
     }
 
     private fun nextTokenKind(): TokenKind {
         return when (reader.c) {
+            ' ', '\t', '\n', '\r' -> {
+                reader.nextChar()
+
+                while (!reader.isEof()) {
+                    when (reader.c) {
+                        ' ', '\t', '\n', '\r' -> reader.nextChar()
+                        else -> break
+                    }
+                }
+
+                TokenKind.Normal(TokenType.WHITESPACE)
+            }
+
             in 'a'..'z', in 'A'..'Z' -> readIdentifier()
 
             in '0'..'9' -> readNumber()
@@ -49,17 +55,55 @@ class Lexer(val reader: Reader) {
                 }
             }
 
-            '=' -> TokenKind.Normal(TokenType.EQ)
-            '+' -> TokenKind.Normal(TokenType.PLUS)
-            '-' -> TokenKind.Normal(TokenType.MINUS)
-            '*' -> TokenKind.Normal(TokenType.ASTERISK)
-            '/' -> TokenKind.Normal(TokenType.SOLIDUS)
-            '%' -> TokenKind.Normal(TokenType.PERCENT)
-            ',' -> TokenKind.Normal(TokenType.COMMA)
-            '(' -> TokenKind.Normal(TokenType.LPAREN)
-            ')' -> TokenKind.Normal(TokenType.RPAREN)
+            '=' -> {
+                reader.nextChar()
+                TokenKind.Normal(TokenType.EQ)
+            }
 
-            else -> TokenKind.Normal(TokenType.DELIMITER)
+            '+' -> {
+                reader.nextChar()
+                TokenKind.Normal(TokenType.PLUS)
+            }
+
+            '-' -> {
+                reader.nextChar()
+                TokenKind.Normal(TokenType.MINUS)
+            }
+
+            '*' -> {
+                reader.nextChar()
+                TokenKind.Normal(TokenType.ASTERISK)
+            }
+
+            '/' -> {
+                reader.nextChar()
+                TokenKind.Normal(TokenType.SOLIDUS)
+            }
+
+            '%' -> {
+                reader.nextChar()
+                TokenKind.Normal(TokenType.PERCENT)
+            }
+
+            ',' -> {
+                reader.nextChar()
+                TokenKind.Normal(TokenType.COMMA)
+            }
+
+            '(' -> {
+                reader.nextChar()
+                TokenKind.Normal(TokenType.LPAREN)
+            }
+
+            ')' -> {
+                reader.nextChar()
+                TokenKind.Normal(TokenType.RPAREN)
+            }
+
+            else -> {
+                reader.nextChar()
+                TokenKind.Normal(TokenType.DELIMITER)
+            }
         }
     }
 

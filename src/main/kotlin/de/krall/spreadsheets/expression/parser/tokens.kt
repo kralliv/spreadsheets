@@ -29,6 +29,7 @@ class Token(
 }
 
 enum class TokenType {
+    WHITESPACE,
     IDENTIFIER,
     NUMBER,
     EQ,
