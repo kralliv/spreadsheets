@@ -4,7 +4,7 @@ import de.krall.spreadsheets.language.parser.check.FunctionCallChecker
 import de.krall.spreadsheets.language.parser.diagnotic.Diagnostic
 import de.krall.spreadsheets.language.parser.tree.SlStatement
 
-class Processor {
+class LanguageProcessor {
 
     private val checkers = listOf(
         FunctionCallChecker,

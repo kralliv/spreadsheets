@@ -54,6 +54,7 @@ class SlLexer(override val input: Segment) : TokenSequence {
                 if (reader.peekChar() in '0'..'9') {
                     readNumber()
                 } else {
+                    reader.nextChar()
                     TokenKind.Normal(TokenType.DELIMITER)
                 }
             }
