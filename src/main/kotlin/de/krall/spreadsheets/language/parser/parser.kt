@@ -1,21 +1,33 @@
-package de.krall.spreadsheets.expression.parser
+package de.krall.spreadsheets.language.parser
 
+import de.krall.spreadsheets.language.parser.tree.SlBinaryExpression
+import de.krall.spreadsheets.language.parser.tree.SlExpression
+import de.krall.spreadsheets.language.parser.tree.SlFormulaStatement
+import de.krall.spreadsheets.language.parser.tree.SlFunctionCall
+import de.krall.spreadsheets.language.parser.tree.SlInvalid
+import de.krall.spreadsheets.language.parser.tree.SlLiteral
+import de.krall.spreadsheets.language.parser.tree.SlNumberStatement
+import de.krall.spreadsheets.language.parser.tree.SlParenthesizedExpression
+import de.krall.spreadsheets.language.parser.tree.SlPrefixExpression
+import de.krall.spreadsheets.language.parser.tree.SlReference
+import de.krall.spreadsheets.language.parser.tree.SlStatement
+import de.krall.spreadsheets.language.parser.tree.SlTextStatement
 import de.krall.spreadsheets.util.plus
 import de.krall.spreadsheets.util.toEnumSet
 
 private val ADDITIVE_OPERATORS = OperatorSet(
-    TokenType.PLUS to BinaryExpression.Operator.PLUS,
-    TokenType.MINUS to BinaryExpression.Operator.MINUS
+    TokenType.PLUS to SlBinaryExpression.Operator.PLUS,
+    TokenType.MINUS to SlBinaryExpression.Operator.MINUS
 )
 private val MULTIPLICATIVE_OPERATORS = OperatorSet(
-    TokenType.ASTERISK to BinaryExpression.Operator.TIMES,
-    TokenType.SOLIDUS to BinaryExpression.Operator.DIVIDE,
-    TokenType.PERCENT to BinaryExpression.Operator.MODULO,
+    TokenType.ASTERISK to SlBinaryExpression.Operator.TIMES,
+    TokenType.SOLIDUS to SlBinaryExpression.Operator.DIVIDE,
+    TokenType.PERCENT to SlBinaryExpression.Operator.MODULO,
 )
 
 private val PREFIX_OPERATORS = OperatorSet(
-    TokenType.PLUS to PrefixExpression.Operator.PLUS,
-    TokenType.MINUS to PrefixExpression.Operator.MINUS,
+    TokenType.PLUS to SlPrefixExpression.Operator.PLUS,
+    TokenType.MINUS to SlPrefixExpression.Operator.MINUS,
 )
 
 private val LITERAL_EXPRESSION_START = TokenTypeSet.of(TokenType.NUMBER)
@@ -28,9 +40,9 @@ private val PARENTHESIZED_RECOVERY_SET = TokenTypeSet.of(TokenType.RPAREN)
 private val FUNCTION_CALL_RECOVERY_SET = TokenTypeSet.of(TokenType.COMMA, TokenType.RPAREN)
 private val ARGUMENT_RECOVERY_SET = TokenTypeSet.of(TokenType.COMMA)
 
-class Parser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSink) : AbstractParser(input, tokens, diagnostics) {
+class SlParser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSink) : AbstractParser(input, tokens, diagnostics) {
 
-    fun parse(): Statement {
+    fun parse(): SlStatement {
         return when {
             at(TokenType.EQ) -> parseFormulaStatement()
             at(TokenType.NUMBER) && lookahead(1) == null -> parseNumberStatement()
@@ -38,7 +50,7 @@ class Parser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSink)
         }
     }
 
-    private fun parseFormulaStatement(): FormulaStatement {
+    private fun parseFormulaStatement(): SlFormulaStatement {
         assert(at(TokenType.EQ))
 
         val span = span()
@@ -48,13 +60,13 @@ class Parser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSink)
         val expression = if (recover(EXPRESSION_START, Diagnostics.EXPECTED_EXPRESSION)) {
             parseExpression()
         } else {
-            InvalidExpression()
+            SlInvalid()
         }
 
-        return FormulaStatement(expression, span.finish())
+        return SlFormulaStatement(expression, span.finish())
     }
 
-    private fun parseNumberStatement(): NumberStatement {
+    private fun parseNumberStatement(): SlNumberStatement {
         assert(at(TokenType.NUMBER))
 
         val span = span()
@@ -62,34 +74,35 @@ class Parser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSink)
         val number = token.number
         advance() // NUMBER
 
-        return NumberStatement(number, span.finish())
+        return SlNumberStatement(number, span.finish())
     }
 
-    private fun parseTextStatement(): TextStatement {
+    private fun parseTextStatement(): SlTextStatement {
         val span = span()
 
         val text = buildString {
             while (!eof()) {
                 append(token.text)
+                advance()
             }
         }
 
-        return TextStatement(text, span.finish())
+        return SlTextStatement(text, span.finish())
     }
 
-    private fun parseExpression(): Expression {
+    private fun parseExpression(): SlExpression {
         return parseAdditiveExpression()
     }
 
-    private fun parseAdditiveExpression(): Expression {
+    private fun parseAdditiveExpression(): SlExpression {
         return parseBinaryExpression(ADDITIVE_OPERATORS) { parseMultiplicativeExpression() }
     }
 
-    private fun parseMultiplicativeExpression(): Expression {
+    private fun parseMultiplicativeExpression(): SlExpression {
         return parseBinaryExpression(MULTIPLICATIVE_OPERATORS) { parsePrefixExpression() }
     }
 
-    private inline fun parseBinaryExpression(operators: OperatorSet<BinaryExpression.Operator>, higher: () -> Expression): Expression {
+    private inline fun parseBinaryExpression(operators: OperatorSet<SlBinaryExpression.Operator>, higher: () -> SlExpression): SlExpression {
         assert(at(EXPRESSION_START))
 
         val span = span()
@@ -106,17 +119,17 @@ class Parser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSink)
                 if (recover(EXPRESSION_START, Diagnostics.EXPECTED_EXPRESSION)) {
                     higher()
                 } else {
-                    InvalidExpression(span().finish())
+                    SlInvalid(span().finish())
                 }
             }
 
-            left = BinaryExpression(left, operator, right, span.finish())
+            left = SlBinaryExpression(left, operator, right, span.finish())
         }
 
         return left
     }
 
-    private fun parsePrefixExpression(): Expression {
+    private fun parsePrefixExpression(): SlExpression {
         assert(at(PREFIX_EXPRESSION_START))
 
         return when {
@@ -128,14 +141,14 @@ class Parser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSink)
 
                 val expression = parsePrefixExpression()
 
-                PrefixExpression(operator, expression, span.finish())
+                SlPrefixExpression(operator, expression, span.finish())
             }
 
             else -> parseAtomicExpression()
         }
     }
 
-    private fun parseAtomicExpression(): Expression {
+    private fun parseAtomicExpression(): SlExpression {
         assert(at(ATOMIC_EXPRESSION_START))
 
         return when {
@@ -147,8 +160,8 @@ class Parser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSink)
         }
     }
 
-    private fun parseParenthesizedExpression(): Expression {
-        assert(at(TokenType.RPAREN))
+    private fun parseParenthesizedExpression(): SlExpression {
+        assert(at(TokenType.LPAREN))
 
         val span = span()
 
@@ -158,24 +171,24 @@ class Parser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSink)
             if (recover(EXPRESSION_START, Diagnostics.EXPECTED_EXPRESSION)) {
                 parseExpression()
             } else {
-                InvalidExpression(span.finish())
+                SlInvalid(span.finish())
             }
         }
 
-        if (at(TokenType.LPAREN)) {
+        if (at(TokenType.RPAREN)) {
             advance() // RPAREN
         } else {
             report(Diagnostics.EXPECTED_CLOSING_PARENTHESIS.at(segment(span().finish())))
         }
 
-        return ParenthesizedExpression(expression, span.finish())
+        return SlParenthesizedExpression(expression, span.finish())
     }
 
     private fun isAtFunctionCallExpression(): Boolean {
         return at(TokenType.IDENTIFIER) && lookahead(1)?.type == TokenType.LPAREN
     }
 
-    private fun parseFunctionCallExpression(): Expression {
+    private fun parseFunctionCallExpression(): SlExpression {
         assert(isAtFunctionCallExpression())
 
         val span = span()
@@ -195,11 +208,11 @@ class Parser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSink)
             report(Diagnostics.EXPECTED_CLOSING_PARENTHESIS.at(segment(span().finish())))
         }
 
-        return FunctionCallExpression(name, arguments, span.finish())
+        return SlFunctionCall(name, arguments, span.finish())
     }
 
-    private fun parseArgumentList(): List<Expression> {
-        val arguments = mutableListOf<Expression>()
+    private fun parseArgumentList(): List<SlExpression> {
+        val arguments = mutableListOf<SlExpression>()
         while (!eof() && !at(TokenType.RPAREN)) {
             val hasExpression = recover(EXPRESSION_START, Diagnostics.EXPECTED_EXPRESSION)
 
@@ -211,7 +224,7 @@ class Parser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSink)
 
             if (at(TokenType.COMMA)) {
                 if (!hasExpression) {
-                    val expression = InvalidExpression(span().finish())
+                    val expression = SlInvalid(span().finish())
 
                     arguments.add(expression)
                 }
@@ -222,7 +235,7 @@ class Parser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSink)
         return arguments
     }
 
-    private fun parseReferenceExpression(): Expression {
+    private fun parseReferenceExpression(): SlExpression {
         assert(at(TokenType.IDENTIFIER))
 
         val span = span()
@@ -230,10 +243,10 @@ class Parser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSink)
         val name = token.text
         advance() // IDENTIFIER
 
-        return ReferenceExpression(name, span.finish())
+        return SlReference(name, span.finish())
     }
 
-    private fun parseLiteralExpression(): Expression {
+    private fun parseLiteralExpression(): SlExpression {
         assert(at(LITERAL_EXPRESSION_START))
 
         return when {
@@ -243,7 +256,7 @@ class Parser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSink)
                 val number = token.number
                 advance() // NUMBER
 
-                LiteralExpression(number, span.finish())
+                SlLiteral(number, span.finish())
             }
 
             else -> error("precondition violated")

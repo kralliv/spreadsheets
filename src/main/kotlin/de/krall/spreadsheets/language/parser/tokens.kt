@@ -1,4 +1,4 @@
-package de.krall.spreadsheets.expression.parser
+package de.krall.spreadsheets.language.parser
 
 import java.math.BigDecimal
 

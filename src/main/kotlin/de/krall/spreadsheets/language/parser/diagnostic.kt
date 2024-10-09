@@ -1,4 +1,4 @@
-package de.krall.spreadsheets.expression.parser
+package de.krall.spreadsheets.language.parser
 
 class Diagnostic(val severity: Severity, val message: String, val segment: Segment) {
 
@@ -8,7 +8,7 @@ class Diagnostic(val severity: Severity, val message: String, val segment: Segme
         append(message)
         append(" at ")
         append(segment.offset)
-        if (segment.isNotEmpty()){
+        if (segment.isNotEmpty()) {
             append(" '")
             append(segment)
             append("'")
@@ -32,4 +32,17 @@ class DiagnosticFactory0(val severity: Severity, val message: String) : Diagnost
 
 fun interface DiagnosticSink {
     fun report(diagnostic: Diagnostic)
+}
+
+class DiagnosticCollector : DiagnosticSink {
+
+    private val diagnostics = mutableListOf<Diagnostic>()
+
+    override fun report(diagnostic: Diagnostic) {
+        diagnostics.add(diagnostic)
+    }
+
+    fun toList(): List<Diagnostic> {
+        return diagnostics.toList()
+    }
 }

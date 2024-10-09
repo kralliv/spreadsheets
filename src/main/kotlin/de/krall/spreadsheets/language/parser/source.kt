@@ -1,4 +1,4 @@
-package de.krall.spreadsheets.expression.parser
+package de.krall.spreadsheets.language.parser
 
 fun Segment(text: String): Segment {
     return Segment(text.toCharArray(), 0, text.length)

@@ -1,4 +1,4 @@
-package de.krall.spreadsheets.expression.parser
+package de.krall.spreadsheets.language.parser
 
 import java.math.BigDecimal
 
@@ -6,7 +6,7 @@ interface TokenSequence {
     fun nextToken(): Token?
 }
 
-class Lexer(val input: Segment) : TokenSequence {
+class SlLexer(val input: Segment) : TokenSequence {
 
     private val reader = Reader(input.chars, input.offset, input.length)
 

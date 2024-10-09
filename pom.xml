@@ -13,6 +13,7 @@
 
         <java.version>17</java.version>
         <kotlin.version>2.0.20</kotlin.version>
+        <jupiter-junit.version>5.10.0</jupiter-junit.version>
     </properties>
 
     <dependencies>
@@ -31,6 +32,18 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
             <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test-junit</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${jupiter-junit.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
