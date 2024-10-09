@@ -18,15 +18,15 @@ interface TokenSequenceWalker {
     fun span(): Span
 
     interface Span {
-        fun finish(): Location
+        fun finish(): SlSource
     }
 }
 
 typealias TokenTypeSet = EnumSet<TokenType>
 
-class SimpleTokenSequenceWalker(tokens: TokenSequence) : TokenSequenceWalker {
+class SimpleTokenSequenceWalker(private val input: TokenSequence) : TokenSequenceWalker {
 
-    private val tokens = tokens.toArray()
+    private val tokens = input.toArray()
 
     private var index = -1
 
@@ -85,13 +85,15 @@ class SimpleTokenSequenceWalker(tokens: TokenSequence) : TokenSequenceWalker {
         private val startIndex: Int,
     ) : TokenSequenceWalker.Span {
 
-        override fun finish(): Location {
+        override fun finish(): SlSource {
             val endIndex = index
 
             val startPosition = tokens.getOrNull(startIndex)?.offset ?: lastPosition()
             val endPosition = tokens.getOrNull(endIndex)?.offset ?: lastPosition()
 
-            return Location(startPosition, endPosition - startPosition)
+            val segment = input.input.segment(startPosition, endPosition - startPosition)
+
+            return SlSource(segment)
         }
 
         private fun lastPosition(): Int {

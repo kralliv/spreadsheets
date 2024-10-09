@@ -1,5 +1,6 @@
 package de.krall.spreadsheets.language.parser
 
+import de.krall.spreadsheets.language.parser.diagnotic.Diagnostics
 import de.krall.spreadsheets.language.parser.tree.SlBinaryExpression
 import de.krall.spreadsheets.language.parser.tree.SlExpression
 import de.krall.spreadsheets.language.parser.tree.SlFormulaStatement
@@ -40,7 +41,7 @@ private val PARENTHESIZED_RECOVERY_SET = TokenTypeSet.of(TokenType.RPAREN)
 private val FUNCTION_CALL_RECOVERY_SET = TokenTypeSet.of(TokenType.COMMA, TokenType.RPAREN)
 private val ARGUMENT_RECOVERY_SET = TokenTypeSet.of(TokenType.COMMA)
 
-class SlParser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSink) : AbstractParser(input, tokens, diagnostics) {
+class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractParser(tokens, context) {
 
     fun parse(): SlStatement {
         return when {
@@ -178,7 +179,7 @@ class SlParser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSin
         if (at(TokenType.RPAREN)) {
             advance() // RPAREN
         } else {
-            report(Diagnostics.EXPECTED_CLOSING_PARENTHESIS.at(segment(span().finish())))
+            report(Diagnostics.EXPECTED_CLOSING_PARENTHESIS.on(invalid(span().finish())))
         }
 
         return SlParenthesizedExpression(expression, span.finish())
@@ -205,7 +206,7 @@ class SlParser(input: Segment, tokens: TokenSequence, diagnostics: DiagnosticSin
         if (at(TokenType.RPAREN)) {
             advance() // RPAREN
         } else {
-            report(Diagnostics.EXPECTED_CLOSING_PARENTHESIS.at(segment(span().finish())))
+            report(Diagnostics.EXPECTED_CLOSING_PARENTHESIS.on(invalid(span().finish())))
         }
 
         return SlFunctionCall(name, arguments, span.finish())

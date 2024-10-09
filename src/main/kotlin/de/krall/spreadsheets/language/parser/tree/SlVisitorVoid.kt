@@ -38,23 +38,23 @@ abstract class SlVisitorVoid : SlVisitor<Nothing?, Unit>() {
 
     fun visitExpression(expression: SlExpression) = visitElement(expression)
 
-    final override fun visitLiteral(expression: SlLiteral, data: Nothing?) {
-        visitLiteral(expression)
+    final override fun visitLiteral(literal: SlLiteral, data: Nothing?) {
+        visitLiteral(literal)
     }
 
-    open fun visitLiteral(expression: SlLiteral) = visitExpression(expression)
+    open fun visitLiteral(literal: SlLiteral) = visitExpression(literal)
 
     final override fun visitReference(reference: SlReference, data: Nothing?) {
         visitReference(reference)
     }
 
-    open fun visitReference(expression: SlReference) = visitExpression(expression)
+    open fun visitReference(reference: SlReference) = visitExpression(reference)
 
     final override fun visitInvalid(invalid: SlInvalid, data: Nothing?) {
         visitInvalid(invalid)
     }
 
-    open fun visitInvalid(expression: SlInvalid) = visitExpression(expression)
+    open fun visitInvalid(invalid: SlInvalid) = visitExpression(invalid)
 
     final override fun visitBinaryExpression(expression: SlBinaryExpression, data: Nothing?) {
         visitBinaryExpression(expression)
@@ -78,5 +78,5 @@ abstract class SlVisitorVoid : SlVisitor<Nothing?, Unit>() {
         visitFunctionCall(functionCall)
     }
 
-    open fun visitFunctionCall(expression: SlFunctionCall) = visitExpression(expression)
+    open fun visitFunctionCall(functionCall: SlFunctionCall) = visitExpression(functionCall)
 }

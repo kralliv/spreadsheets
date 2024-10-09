@@ -1,12 +1,12 @@
 package de.krall.spreadsheets.language.parser.tree
 
-import de.krall.spreadsheets.language.parser.Location
+import de.krall.spreadsheets.language.parser.SlSource
 
 class SlBinaryExpression(
     val left: SlExpression,
     val operator: Operator,
     val right: SlExpression,
-    override val location: Location? = null,
+    override val source: SlSource? = null,
 ) : SlExpression() {
 
     enum class Operator {

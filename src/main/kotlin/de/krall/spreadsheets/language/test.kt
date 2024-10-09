@@ -1,16 +1,14 @@
 package de.krall.spreadsheets.language
 
-import de.krall.spreadsheets.language.parser.SlLexer
-import de.krall.spreadsheets.language.parser.SlParser
-import de.krall.spreadsheets.language.parser.Segment
+import de.krall.spreadsheets.language.parser.Processor
 
 fun main() {
-    val text = "foo"
-    val input = Segment(text)
-    val lexer = SlLexer(input)
-    val parser = SlParser(input, lexer) { println(it) }
+    val text = "=foo(1)"
 
-    val statement = parser.parse()
+    val processor = Processor()
+
+    val (statement, diagnostics) = processor.process(text)
 
     println(statement)
+    diagnostics.forEach { println(it) }
 }

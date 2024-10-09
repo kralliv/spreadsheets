@@ -1,6 +1,6 @@
 package de.krall.spreadsheets.language
 
-import de.krall.spreadsheets.language.parser.Location
+import de.krall.spreadsheets.language.parser.SlSource
 import de.krall.spreadsheets.language.parser.tree.SlBinaryExpression
 import de.krall.spreadsheets.language.parser.tree.SlElement
 import de.krall.spreadsheets.language.parser.tree.SlExpression
@@ -28,7 +28,7 @@ class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
 
     override fun visitTextStatement(statement: SlTextStatement, data: Int) {
         buffer.indent(data)
-            .element("TEXT_STATEMENT", statement.location)
+            .element("TEXT_STATEMENT", statement.source)
             .append("'")
             .append(statement.text)
             .append("'")
@@ -39,7 +39,7 @@ class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
 
     override fun visitNumberStatement(statement: SlNumberStatement, data: Int) {
         buffer.indent(data)
-            .element("NUMBER_STATEMENT", statement.location)
+            .element("NUMBER_STATEMENT", statement.source)
             .append(statement.number)
             .appendLine()
 
@@ -48,7 +48,7 @@ class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
 
     override fun visitFormulaStatement(statement: SlFormulaStatement, data: Int) {
         buffer.indent(data)
-            .element("FORMULA_STATEMENT", statement.location)
+            .element("FORMULA_STATEMENT", statement.source)
             .appendLine()
 
         statement.acceptChildren(this, data + 2)
@@ -60,7 +60,7 @@ class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
 
     override fun visitLiteral(literal: SlLiteral, data: Int) {
         buffer.indent(data)
-            .element("LITERAL", literal.location)
+            .element("LITERAL", literal.source)
             .append(literal.value)
             .appendLine()
 
@@ -69,8 +69,10 @@ class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
 
     override fun visitReference(reference: SlReference, data: Int) {
         buffer.indent(data)
-            .element("REFERENCE", reference.location)
+            .element("REFERENCE", reference.source)
+            .append("'")
             .append(reference.name)
+            .append("'")
             .appendLine()
 
         reference.acceptChildren(this, data + 2)
@@ -78,7 +80,7 @@ class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
 
     override fun visitInvalid(invalid: SlInvalid, data: Int) {
         buffer.indent(data)
-            .element("REFERENCE", invalid.location)
+            .element("INVALID", invalid.source)
             .appendLine()
 
         invalid.acceptChildren(this, data + 2)
@@ -86,7 +88,7 @@ class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
 
     override fun visitBinaryExpression(expression: SlBinaryExpression, data: Int) {
         buffer.indent(data)
-            .element("BINARY_EXPRESSION", expression.location)
+            .element("BINARY_EXPRESSION", expression.source)
             .append(expression.operator)
             .appendLine()
 
@@ -95,7 +97,7 @@ class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
 
     override fun visitPrefixExpression(expression: SlPrefixExpression, data: Int) {
         buffer.indent(data)
-            .element("PREFIX_EXPRESSION", expression.location)
+            .element("PREFIX_EXPRESSION", expression.source)
             .append(expression.operator)
             .appendLine()
 
@@ -104,7 +106,7 @@ class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
 
     override fun visitParenthesizedExpression(expression: SlParenthesizedExpression, data: Int) {
         buffer.indent(data)
-            .element("PARENTHESIZED_EXPRESSION", expression.location)
+            .element("PARENTHESIZED_EXPRESSION", expression.source)
             .appendLine()
 
         expression.acceptChildren(this, data + 2)
@@ -112,8 +114,10 @@ class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
 
     override fun visitFunctionCall(functionCall: SlFunctionCall, data: Int) {
         buffer.indent(data)
-            .element("FUNCTION_CALL", functionCall.location)
+            .element("FUNCTION_CALL", functionCall.source)
+            .append("'")
             .append(functionCall.name)
+            .append("'")
             .appendLine()
 
         functionCall.acceptChildren(this, data + 2)
@@ -126,10 +130,10 @@ class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
         return this
     }
 
-    private fun StringBuilder.element(name: String, location: Location?): StringBuilder {
+    private fun StringBuilder.element(name: String, source: SlSource?): StringBuilder {
         append(name)
-        if (location != null) {
-            append("(").append(location.offset).append("-").append(location.offset + location.length).append(") ")
+        if (source != null) {
+            append("(").append(source.offset).append("-").append(source.offset + source.length).append(") ")
         } else {
             append("(-)")
         }

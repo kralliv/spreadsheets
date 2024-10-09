@@ -3,10 +3,13 @@ package de.krall.spreadsheets.language.parser
 import java.math.BigDecimal
 
 interface TokenSequence {
+
+    val input: Segment
+
     fun nextToken(): Token?
 }
 
-class SlLexer(val input: Segment) : TokenSequence {
+class SlLexer(override val input: Segment) : TokenSequence {
 
     private val reader = Reader(input.chars, input.offset, input.length)
 

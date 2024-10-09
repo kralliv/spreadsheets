@@ -1,9 +1,9 @@
 package de.krall.spreadsheets.language.parser.tree
 
-import de.krall.spreadsheets.language.parser.Location
+import de.krall.spreadsheets.language.parser.SlSource
 
 class SlInvalid(
-    override val location: Location? = null,
+    override val source: SlSource? = null,
 ) : SlExpression() {
 
     override fun <D, R> accept(visitor: SlVisitor<D, R>, data: D): R {

@@ -1,11 +1,11 @@
 package de.krall.spreadsheets.language.parser.tree
 
-import de.krall.spreadsheets.language.parser.Location
+import de.krall.spreadsheets.language.parser.SlSource
 
 class SlPrefixExpression(
     val operator: Operator,
     val expression: SlExpression,
-    override val location: Location? = null,
+    override val source: SlSource? = null,
 ) : SlExpression() {
 
     enum class Operator {

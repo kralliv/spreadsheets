@@ -1,12 +1,15 @@
 package de.krall.spreadsheets.language.parser
 
+import de.krall.spreadsheets.language.parser.diagnotic.Diagnostic
+import de.krall.spreadsheets.language.parser.diagnotic.DiagnosticFactory0
+import de.krall.spreadsheets.language.parser.tree.SlElement
+import de.krall.spreadsheets.language.parser.tree.SlInvalid
 import java.util.LinkedList
 import de.krall.spreadsheets.util.plus
 
 abstract class AbstractParser(
-    val input: Segment,
     tokens: TokenSequence,
-    private val diagnostics: DiagnosticSink,
+    val context: ProcessingContext,
 ) : TokenSequenceWalker {
 
     private val delegate = SimpleTokenSequenceWalker(tokens)
@@ -26,11 +29,11 @@ abstract class AbstractParser(
     override fun span(): TokenSequenceWalker.Span = delegate.span()
 
     fun report(diagnostic: Diagnostic) {
-        diagnostics.report(diagnostic)
+        context.report(diagnostic)
     }
 
-    fun segment(location: Location): Segment {
-        return input.segment(location.offset, location.length)
+    fun invalid(source: SlSource): SlElement {
+        return SlInvalid(source)
     }
 
     private val recoverySets = LinkedList<TokenTypeSet>()
@@ -52,7 +55,7 @@ abstract class AbstractParser(
             if (recoverySets.isNotEmpty() && at(recoverySets.first())) return false
 
             advance()
-            report(diagnosticFactory.at(segment(span.finish())))
+            report(diagnosticFactory.on(invalid(span.finish())))
             span = span()
         }
         return false

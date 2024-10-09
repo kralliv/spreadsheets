@@ -1,7 +1,8 @@
 package de.krall.spreadsheets.language.parser
 
-import de.krall.spreadsheets.language.parser.tree.SlStatement
 import de.krall.spreadsheets.language.TreeDumper
+import de.krall.spreadsheets.language.parser.diagnotic.Diagnostic
+import de.krall.spreadsheets.language.parser.tree.SlStatement
 import de.krall.spreadsheets.test.TestCaseResource
 import org.junit.jupiter.api.DynamicNode
 import org.junit.jupiter.api.DynamicTest
@@ -41,15 +42,15 @@ class ParseTest {
     }
 
     private fun parse(text: String): Pair<SlStatement, List<Diagnostic>> {
+        val context = ProcessingContext()
+
         val input = Segment(text)
         val lexer = SlLexer(input)
-        val diagnosticCollector = DiagnosticCollector()
-        val parser = SlParser(input, lexer, diagnosticCollector)
+        val parser = SlParser(lexer, context)
 
         val statement = parser.parse()
-        val diagnostics = diagnosticCollector.toList()
 
-        return statement to diagnostics
+        return statement to context.diagnostics
     }
 
     private fun dump(statement: SlStatement, diagnostics: List<Diagnostic>): String {
@@ -59,13 +60,17 @@ class ParseTest {
         for (diagnostic in diagnostics) {
             buffer.append(diagnostic.severity)
                 .append(" ")
-                .append(diagnostic.message)
-                .append(" (")
-                .append(diagnostic.segment.offset)
-                .append("-")
-                .append(diagnostic.segment.offset + diagnostic.segment.length)
-                .append(")")
-                .appendLine()
+                .append(diagnostic.name)
+
+            diagnostic.source?.let { source ->
+                buffer.append(" (")
+                    .append(source.offset)
+                    .append("-")
+                    .append(source.offset + source.length)
+                    .append(")")
+            }
+
+            buffer.appendLine()
         }
         return buffer.toString()
     }
