@@ -1,8 +1,10 @@
 package de.krall.spreadsheets.ui
 
+import de.krall.spreadsheets.model.Spreadsheet
+import de.krall.spreadsheets.value.Value
 import javax.swing.table.AbstractTableModel
 
-class SpreadsheetTableModel(val model: SpreadsheetModel) : AbstractTableModel() {
+class SpreadsheetTableModel(val model: Spreadsheet) : AbstractTableModel() {
 
     override fun getRowCount(): Int = 100
     override fun getColumnCount(): Int = 100
@@ -11,14 +13,14 @@ class SpreadsheetTableModel(val model: SpreadsheetModel) : AbstractTableModel() 
         return if (columnIndex == 0) {
             (rowIndex + 1).toString()
         } else {
-            model.getValue(rowIndex, columnIndex - 1)
+            model[rowIndex, columnIndex - 1].value
         }
     }
 
-    override fun setValueAt(aValue: Any?, rowIndex: Int, columnIndex: Int) {
+    override fun setValueAt(value: Any?, rowIndex: Int, columnIndex: Int) {
         if (columnIndex == 0) return
 
-        model.getValue(rowIndex, columnIndex - 1)
+        model[rowIndex, columnIndex - 1].value = value as Value?
         fireTableCellUpdated(rowIndex, columnIndex)
     }
 

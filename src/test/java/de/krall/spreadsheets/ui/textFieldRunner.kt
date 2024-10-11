@@ -1,6 +1,5 @@
 package de.krall.spreadsheets.ui
 
-import de.krall.spreadsheets.ui.components.LanguageTextField
 import fernice.reflare.FlareLookAndFeel
 import java.awt.Dimension
 import javax.swing.JFrame
@@ -17,7 +16,7 @@ fun main() {
 
     val container = JPanel()
 
-    val textfield = LanguageTextField()
+    val textfield = ValueField()
     container.add(textfield)
 
     frame.contentPane = container

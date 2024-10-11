@@ -1,5 +1,6 @@
 package de.krall.spreadsheets.ui
 
+import de.krall.spreadsheets.model.SpreadsheetImpl
 import de.krall.spreadsheets.ui.components.SScrollPane
 import java.awt.Dimension
 import javax.swing.JFrame
@@ -13,10 +14,10 @@ class DocumentWindow : JFrame() {
         size = Dimension(1200, 720)
         setLocationRelativeTo(null)
 
-        val model = SpreadsheetModel()
+        val spreadsheet = SpreadsheetImpl()
 
-        table = SpreadsheetTable()
-        table.model = SpreadsheetTableModel(model)
+        table = SpreadsheetTable(spreadsheet)
+
         contentPane.add(SScrollPane(table))
     }
 
