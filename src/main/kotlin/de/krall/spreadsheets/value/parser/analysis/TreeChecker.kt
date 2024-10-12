@@ -1,4 +1,4 @@
-package de.krall.spreadsheets.value.parser.check
+package de.krall.spreadsheets.value.parser.analysis
 
 import de.krall.spreadsheets.value.parser.ProcessingContext
 import de.krall.spreadsheets.value.parser.tree.SlElement

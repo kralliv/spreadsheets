@@ -39,7 +39,6 @@ private val EXPRESSION_START = PREFIX_EXPRESSION_START + ATOMIC_EXPRESSION_START
 
 private val PARENTHESIZED_RECOVERY_SET = TokenTypeSet.of(TokenType.RPAREN)
 private val FUNCTION_CALL_RECOVERY_SET = TokenTypeSet.of(TokenType.COMMA, TokenType.RPAREN)
-private val ARGUMENT_RECOVERY_SET = TokenTypeSet.of(TokenType.COMMA)
 
 class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractParser(tokens, context) {
 
@@ -230,6 +229,7 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
             if (at(TokenType.COMMA)) {
                 if (!hasExpression) {
                     val expression = SlInvalid(span().finish())
+                    report(Diagnostics.EXPECTED_EXPRESSION.on(expression))
 
                     arguments.add(expression)
                 }
@@ -240,15 +240,44 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
         return arguments
     }
 
+    private fun isAtReferenceExpression(): Boolean {
+        if (at(TokenType.IDENTIFIER)) return true
+        if (at(TokenType.NUMBER) && lookahead(1)?.type == TokenType.COLON) return true
+        return false
+    }
+
     private fun parseReferenceExpression(): SlExpression {
-        assert(at(TokenType.IDENTIFIER))
+        assert(isAtReferenceExpression())
 
         val span = span()
 
-        val name = token.text
-        advance() // IDENTIFIER
+        val leftReference = when {
+            at(TokenType.IDENTIFIER) -> token.string
+            at(TokenType.NUMBER) -> token.text
+            else -> error("preconditions violated")
+        }
 
-        return SlReference(name, span.finish())
+        advance()
+
+        if (!at(TokenType.COLON)) {
+            return SlReference(leftReference, rightName = null, span.finish())
+        }
+
+        advance() // COLON
+
+        val rightReference = when {
+            at(TokenType.IDENTIFIER) -> token.string
+            at(TokenType.NUMBER) -> token.text
+            else -> {
+                val expression = SlInvalid(span.finish())
+                report(Diagnostics.EXPECTED_REFERENCE.on(invalid(span().finish())))
+                return expression
+            }
+        }
+
+        advance()
+
+        return SlReference(leftReference, rightReference, span.finish())
     }
 
     private fun parseLiteralExpression(): SlExpression {

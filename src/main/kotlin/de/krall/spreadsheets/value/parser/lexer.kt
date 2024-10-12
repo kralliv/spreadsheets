@@ -1,7 +1,5 @@
 package de.krall.spreadsheets.value.parser
 
-import java.math.BigDecimal
-
 interface TokenSequence {
 
     val input: Segment
@@ -47,12 +45,12 @@ class SlLexer(override val input: Segment) : TokenSequence {
                 TokenKind.Normal(TokenType.WHITESPACE)
             }
 
-            in 'a'..'z', in 'A'..'Z' -> readIdentifier()
+            in 'a'..'z', in 'A'..'Z' -> readIdentifierLike()
 
-            in '0'..'9' -> readNumber()
+            in '0'..'9' -> readNumberLike()
             '.' -> {
                 if (reader.peekChar() in '0'..'9') {
-                    readNumber()
+                    readNumberLike()
                 } else {
                     reader.nextChar()
                     TokenKind.Normal(TokenType.DELIMITER)
@@ -89,6 +87,11 @@ class SlLexer(override val input: Segment) : TokenSequence {
                 TokenKind.Normal(TokenType.PERCENT)
             }
 
+            ':' -> {
+                reader.nextChar()
+                TokenKind.Normal(TokenType.COLON)
+            }
+
             ',' -> {
                 reader.nextChar()
                 TokenKind.Normal(TokenType.COMMA)
@@ -111,7 +114,7 @@ class SlLexer(override val input: Segment) : TokenSequence {
         }
     }
 
-    private fun readIdentifier(): TokenKind {
+    private fun readIdentifierLike(): TokenKind {
         check(reader.c in 'a'..'z' || reader.c in 'A'..'Z')
 
         reader.putChar()
@@ -124,10 +127,14 @@ class SlLexer(override val input: Segment) : TokenSequence {
             }
         }
 
-        return TokenKind.String(TokenType.IDENTIFIER, reader.chars())
+        return when (val identifier = reader.chars()) {
+            "true" -> TokenKind.Normal(TokenType.TRUE)
+            "false" -> TokenKind.Normal(TokenType.FALSE)
+            else -> TokenKind.String(TokenType.IDENTIFIER, identifier)
+        }
     }
 
-    private fun readNumber(): TokenKind {
+    private fun readNumberLike(): TokenKind {
         check(reader.c in '0'..'9' || reader.c == '.')
 
         while (reader.c in '0'..'9') {
@@ -140,11 +147,17 @@ class SlLexer(override val input: Segment) : TokenSequence {
             reader.putChar()
         }
 
-        var text = reader.chars()
-        if (text.startsWith('.')) text = "0$text"
-        if (text.endsWith('.')) text = "${text}0"
+        val text = reader.chars()
+        var numeric = text
+        if (numeric.startsWith('.')) numeric = "0$text"
+        if (numeric.endsWith('.')) numeric = "${text}0"
 
-        return TokenKind.Numeric(TokenType.NUMBER, BigDecimal(text))
+        val number = numeric.toDoubleOrNull()
+        if (number != null) {
+            return TokenKind.Numeric(TokenType.NUMBER, number)
+        }
+
+        return TokenKind.Normal(TokenType.TEXT)
     }
 
     private sealed class TokenKind {
@@ -152,7 +165,7 @@ class SlLexer(override val input: Segment) : TokenSequence {
 
         data class Normal(override val type: TokenType) : TokenKind()
         data class String(override val type: TokenType, val string: kotlin.String) : TokenKind()
-        data class Numeric(override val type: TokenType, val number: BigDecimal) : TokenKind()
+        data class Numeric(override val type: TokenType, val number: Double) : TokenKind()
     }
 }
 

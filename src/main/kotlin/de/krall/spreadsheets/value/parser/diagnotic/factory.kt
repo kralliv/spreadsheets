@@ -14,9 +14,16 @@ class DiagnosticFactory0(override val name: String, val severity: Severity, val 
     }
 }
 
-class DiagnosticFactory1<T>(override val name: String, val severity: Severity, val template: String) : DiagnosticFactory() {
+class DiagnosticFactory1<A>(override val name: String, val severity: Severity, val template: String) : DiagnosticFactory() {
 
-    fun on(element: SlElement, first: T): Diagnostic {
+    fun on(element: SlElement, first: A): Diagnostic {
         return Diagnostic(this, severity, template.messageFormat(first), element)
+    }
+}
+
+class DiagnosticFactory2<A, B>(override val name: String, val severity: Severity, val template: String) : DiagnosticFactory() {
+
+    fun on(element: SlElement, first: A, second: B): Diagnostic {
+        return Diagnostic(this, severity, template.messageFormat(first, second), element)
     }
 }

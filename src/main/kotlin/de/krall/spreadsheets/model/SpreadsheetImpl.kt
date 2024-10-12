@@ -1,5 +1,6 @@
 package de.krall.spreadsheets.model
 
+import de.krall.spreadsheets.grid.SparseGrid
 import de.krall.spreadsheets.util.empty
 import de.krall.spreadsheets.value.EvaluatedValue
 import de.krall.spreadsheets.value.ParsedValue
@@ -116,11 +117,11 @@ private class SpreadsheetEngine(
         val parsedValue = when (val value = attributes.value) {
             null -> null
             is Value.Text -> ParsedValue.Text(value.text)
-            is Value.Number -> ParsedValue.Number(value.value)
+            is Value.Number -> ParsedValue.Number(value.number)
             is Value.Formula -> {
                 val (formula, _) = valueParser.parseFormula(value.formula)
                 when {
-                    formula != null -> ParsedValue.Formula(formula)
+                    formula != null -> ParsedValue.Formula(formula, listOf())
                     else -> ParsedValue.BadFormula
                 }
             }
@@ -206,7 +207,7 @@ private class SpreadsheetEngine(
     }
 
     private fun requestEvaluation(node: Node) {
-        if (node.attributes.evaluatedValue == null) {
+        if (node.attributes.evaluatedValue == EvaluatedValue.Unevaluated) {
             evaluationQueue.put(node)
         }
     }

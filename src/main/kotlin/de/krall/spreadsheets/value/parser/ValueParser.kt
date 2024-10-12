@@ -1,6 +1,7 @@
 package de.krall.spreadsheets.value.parser
 
-import de.krall.spreadsheets.value.parser.check.FunctionCallChecker
+import de.krall.spreadsheets.value.parser.analysis.ReferenceChecker
+import de.krall.spreadsheets.value.parser.analysis.TypeResolver
 import de.krall.spreadsheets.value.parser.diagnotic.Diagnostic
 import de.krall.spreadsheets.value.parser.tree.SlElement
 import de.krall.spreadsheets.value.parser.tree.SlExpression
@@ -9,7 +10,8 @@ import de.krall.spreadsheets.value.parser.tree.SlValue
 class ValueParser {
 
     private val checkers = listOf(
-        FunctionCallChecker,
+        TypeResolver,
+        ReferenceChecker,
     )
 
     fun parseValue(text: String): ParseResult<SlValue> {
@@ -23,7 +25,7 @@ class ValueParser {
     private fun <T : SlElement> process(value: String, parse: (SlParser) -> T): ParseResult<T> {
         val context = ProcessingContext()
 
-        var element = parse(value, context,parse)
+        var element = parse(value, context, parse)
 
         analyse(element, context)
 

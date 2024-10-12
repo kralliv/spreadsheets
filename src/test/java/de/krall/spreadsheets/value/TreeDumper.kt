@@ -71,9 +71,15 @@ class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
         buffer.indent(data)
             .element("REFERENCE", reference.source)
             .append("'")
-            .append(reference.name)
+            .append(reference.leftName)
             .append("'")
-            .appendLine()
+        reference.rightName?.let { rightName ->
+            buffer.append(" ")
+                .append("'")
+                .append(reference.leftName)
+                .append("'")
+        }
+        buffer.appendLine()
 
         reference.acceptChildren(this, data + 2)
     }

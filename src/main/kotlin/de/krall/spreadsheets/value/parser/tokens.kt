@@ -1,12 +1,10 @@
 package de.krall.spreadsheets.value.parser
 
-import java.math.BigDecimal
-
 class Token(
     val type: TokenType,
     val segment: Segment,
     string: String? = null,
-    number: BigDecimal? = null,
+    number: Double? = null,
 ) {
 
     val text: String
@@ -22,7 +20,7 @@ class Token(
         get() = _string ?: error("token $type has no string")
 
     private val _number = number
-    val number: BigDecimal
+    val number: Double
         get() = _number ?: error("token $type has no number")
 
     override fun toString(): String = "$type '$text'"
@@ -32,12 +30,16 @@ enum class TokenType {
     WHITESPACE,
     IDENTIFIER,
     NUMBER,
+    TEXT,
+    TRUE,
+    FALSE,
     EQ,
     PLUS,
     MINUS,
     ASTERISK,
     SOLIDUS,
     PERCENT,
+    COLON,
     COMMA,
     LPAREN,
     RPAREN,
