@@ -13,7 +13,7 @@ private fun init() {
 
     val processor = ValueParser()
 
-    val (statement, diagnostics) = processor.process(text)
+    val (statement, diagnostics) = processor.parseValueTree(text)
 
     println(statement)
     diagnostics.forEach { println(it) }
@@ -24,5 +24,5 @@ private fun test() {
 
     val processor = ValueParser()
 
-    val (statement, diagnostics) = processor.process(text)
+    val (statement, diagnostics) = processor.parseValueTree(text)
 }

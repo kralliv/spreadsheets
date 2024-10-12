@@ -53,7 +53,7 @@ abstract class AbstractParser(
         var seenAtLeastOneToken = false
         while (!eof()) {
             if (at(set)) return true
-            if (recoverySets.isNotEmpty() && at(recoverySets.first())) return false
+            if (recoverySets.isNotEmpty() && at(recoverySets.first())) break
 
             advance()
             seenAtLeastOneToken = true
@@ -69,7 +69,7 @@ abstract class AbstractParser(
         var span = span()
         while (!eof()) {
             if (at(set)) return true
-            if (recoverySets.isNotEmpty() && at(recoverySets.first())) return false
+            if (recoverySets.isNotEmpty() && at(recoverySets.first())) break
 
             advance()
         }

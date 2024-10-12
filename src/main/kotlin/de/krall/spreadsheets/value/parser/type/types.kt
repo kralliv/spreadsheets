@@ -14,11 +14,11 @@ object AnyType : AbstractType() {
     override fun toString(): String = "any"
 }
 
-object StringType : AbstractType() {
+object TextType : AbstractType() {
 
     override fun isAssignableFrom(other: Type): Boolean = other == this
 
-    override fun toString(): String = "string"
+    override fun toString(): String = "text"
 }
 
 object NumberType : AbstractType() {

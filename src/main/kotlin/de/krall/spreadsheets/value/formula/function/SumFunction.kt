@@ -5,7 +5,7 @@ import de.krall.spreadsheets.value.formula.ReferenceResolver
 
 object SumFunction : AbstractFunction() {
 
-    override fun call(arguments: List<ComputedValue>, references: ReferenceResolver): ComputedValue {
+    override fun call(arguments: List<ComputedValue?>, references: ReferenceResolver): ComputedValue {
         val values = arguments.asSequence()
             .flatMap { resolveAll(it, references) }
 

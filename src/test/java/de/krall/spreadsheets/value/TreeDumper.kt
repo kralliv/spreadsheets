@@ -4,16 +4,16 @@ import de.krall.spreadsheets.value.parser.SlSource
 import de.krall.spreadsheets.value.parser.tree.SlBinaryExpression
 import de.krall.spreadsheets.value.parser.tree.SlElement
 import de.krall.spreadsheets.value.parser.tree.SlExpression
-import de.krall.spreadsheets.value.parser.tree.SlFormulaValue
+import de.krall.spreadsheets.value.parser.tree.SlFormulaStatement
 import de.krall.spreadsheets.value.parser.tree.SlFunctionCall
 import de.krall.spreadsheets.value.parser.tree.SlInvalid
 import de.krall.spreadsheets.value.parser.tree.SlLiteral
-import de.krall.spreadsheets.value.parser.tree.SlNumberValue
+import de.krall.spreadsheets.value.parser.tree.SlNumberStatement
 import de.krall.spreadsheets.value.parser.tree.SlParenthesizedExpression
 import de.krall.spreadsheets.value.parser.tree.SlPrefixExpression
 import de.krall.spreadsheets.value.parser.tree.SlReference
-import de.krall.spreadsheets.value.parser.tree.SlValue
-import de.krall.spreadsheets.value.parser.tree.SlTextValue
+import de.krall.spreadsheets.value.parser.tree.SlStatement
+import de.krall.spreadsheets.value.parser.tree.SlTextStatement
 import de.krall.spreadsheets.value.parser.tree.SlVisitor
 
 class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
@@ -22,11 +22,11 @@ class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
         error("unhandled element: $element")
     }
 
-    override fun visitStatement(statement: SlValue, data: Int) {
+    override fun visitStatement(statement: SlStatement, data: Int) {
         error("unhandled statement: $statement")
     }
 
-    override fun visitTextStatement(statement: SlTextValue, data: Int) {
+    override fun visitTextStatement(statement: SlTextStatement, data: Int) {
         buffer.indent(data)
             .element("TEXT_STATEMENT", statement.source)
             .append("'")
@@ -37,7 +37,7 @@ class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
         statement.acceptChildren(this, data + 2)
     }
 
-    override fun visitNumberStatement(statement: SlNumberValue, data: Int) {
+    override fun visitNumberStatement(statement: SlNumberStatement, data: Int) {
         buffer.indent(data)
             .element("NUMBER_STATEMENT", statement.source)
             .append(statement.number)
@@ -46,7 +46,7 @@ class TreeDumper(val buffer: StringBuilder) : SlVisitor<Int, Unit>() {
         statement.acceptChildren(this, data + 2)
     }
 
-    override fun visitFormulaStatement(statement: SlFormulaValue, data: Int) {
+    override fun visitFormulaStatement(statement: SlFormulaStatement, data: Int) {
         buffer.indent(data)
             .element("FORMULA_STATEMENT", statement.source)
             .appendLine()

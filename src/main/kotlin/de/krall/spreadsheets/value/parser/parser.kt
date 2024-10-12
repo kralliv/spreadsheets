@@ -3,16 +3,16 @@ package de.krall.spreadsheets.value.parser
 import de.krall.spreadsheets.value.parser.diagnotic.Diagnostics
 import de.krall.spreadsheets.value.parser.tree.SlBinaryExpression
 import de.krall.spreadsheets.value.parser.tree.SlExpression
-import de.krall.spreadsheets.value.parser.tree.SlFormulaValue
+import de.krall.spreadsheets.value.parser.tree.SlFormulaStatement
 import de.krall.spreadsheets.value.parser.tree.SlFunctionCall
 import de.krall.spreadsheets.value.parser.tree.SlInvalid
 import de.krall.spreadsheets.value.parser.tree.SlLiteral
-import de.krall.spreadsheets.value.parser.tree.SlNumberValue
+import de.krall.spreadsheets.value.parser.tree.SlNumberStatement
 import de.krall.spreadsheets.value.parser.tree.SlParenthesizedExpression
 import de.krall.spreadsheets.value.parser.tree.SlPrefixExpression
 import de.krall.spreadsheets.value.parser.tree.SlReference
-import de.krall.spreadsheets.value.parser.tree.SlValue
-import de.krall.spreadsheets.value.parser.tree.SlTextValue
+import de.krall.spreadsheets.value.parser.tree.SlStatement
+import de.krall.spreadsheets.value.parser.tree.SlTextStatement
 import de.krall.spreadsheets.util.plus
 import de.krall.spreadsheets.util.toEnumSet
 
@@ -42,7 +42,7 @@ private val FUNCTION_CALL_RECOVERY_SET = TokenTypeSet.of(TokenType.COMMA, TokenT
 
 class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractParser(tokens, context) {
 
-    fun parseValue(): SlValue {
+    fun parseValue(): SlStatement {
         return when {
             at(TokenType.EQ) -> parseFormulaValue()
             at(TokenType.NUMBER) && lookahead(1) == null -> parseNumberValue()
@@ -50,7 +50,7 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
         }
     }
 
-    private fun parseFormulaValue(): SlFormulaValue {
+    private fun parseFormulaValue(): SlFormulaStatement {
         assert(at(TokenType.EQ))
 
         val span = span()
@@ -63,10 +63,10 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
             SlInvalid()
         }
 
-        return SlFormulaValue(expression, span.finish())
+        return SlFormulaStatement(expression, span.finish())
     }
 
-    private fun parseNumberValue(): SlNumberValue {
+    private fun parseNumberValue(): SlNumberStatement {
         assert(at(TokenType.NUMBER))
 
         val span = span()
@@ -74,10 +74,10 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
         val number = token.number
         advance() // NUMBER
 
-        return SlNumberValue(number, span.finish())
+        return SlNumberStatement(number, span.finish())
     }
 
-    private fun parseTextValue(): SlTextValue {
+    private fun parseTextValue(): SlTextStatement {
         val span = span()
 
         val text = buildString {
@@ -87,7 +87,7 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
             }
         }
 
-        return SlTextValue(text, span.finish())
+        return SlTextStatement(text, span.finish())
     }
 
     fun parseFormula(): SlExpression {

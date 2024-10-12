@@ -118,12 +118,9 @@ private class SpreadsheetEngine(
             null -> null
             is Value.Text -> ParsedValue.Text(value.text)
             is Value.Number -> ParsedValue.Number(value.number)
-            is Value.Formula -> {
-                val (formula, _) = valueParser.parseFormula(value.formula)
-                when {
-                    formula != null -> ParsedValue.Formula(formula, listOf())
-                    else -> ParsedValue.BadFormula
-                }
+            is Value.Formula -> when (val formula = valueParser.parseFormula(value.formula)) {
+                null -> ParsedValue.BadFormula
+                else -> ParsedValue.Formula(formula)
             }
         }
 

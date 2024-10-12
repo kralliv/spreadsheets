@@ -1,12 +1,11 @@
 package de.krall.spreadsheets.value.parser.tree
 
 import de.krall.spreadsheets.value.parser.SlSource
-import java.math.BigDecimal
 
-class SlNumberValue(
+class SlNumberStatement(
     val number: Double,
     override val source: SlSource? = null,
-) : SlValue() {
+) : SlStatement() {
 
     override fun <D, R> accept(visitor: SlVisitor<D, R>, data: D): R {
         return visitor.visitNumberStatement(this, data)

@@ -5,7 +5,7 @@ import de.krall.spreadsheets.value.formula.ReferenceResolver
 
 abstract class BinaryOperatorFunction : AbstractFunction() {
 
-    override fun call(arguments: List<ComputedValue>, references: ReferenceResolver): ComputedValue {
+    override fun call(arguments: List<ComputedValue?>, references: ReferenceResolver): ComputedValue {
         assert(arguments.size == 2)
 
         val left = when (val value = resolve(arguments[0], references)) {

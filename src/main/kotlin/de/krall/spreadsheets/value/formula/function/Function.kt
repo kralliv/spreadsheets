@@ -5,5 +5,5 @@ import de.krall.spreadsheets.value.formula.ReferenceResolver
 
 interface Function {
 
-    fun call(arguments: List<ComputedValue>, references: ReferenceResolver): ComputedValue
+    fun call(arguments: List<ComputedValue?>, references: ReferenceResolver): ComputedValue?
 }

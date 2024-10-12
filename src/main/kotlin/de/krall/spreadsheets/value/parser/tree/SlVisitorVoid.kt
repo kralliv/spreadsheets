@@ -8,29 +8,29 @@ abstract class SlVisitorVoid : SlVisitor<Nothing?, Unit>() {
 
     abstract fun visitElement(element: SlElement)
 
-    final override fun visitStatement(statement: SlValue, data: Nothing?) {
+    final override fun visitStatement(statement: SlStatement, data: Nothing?) {
         visitStatement(statement)
     }
 
-    open fun visitStatement(statement: SlValue) = visitElement(statement)
+    open fun visitStatement(statement: SlStatement) = visitElement(statement)
 
-    final override fun visitTextStatement(statement: SlTextValue, data: Nothing?) {
+    final override fun visitTextStatement(statement: SlTextStatement, data: Nothing?) {
         visitTextStatement(statement)
     }
 
-    open fun visitTextStatement(statement: SlTextValue) = visitStatement(statement)
+    open fun visitTextStatement(statement: SlTextStatement) = visitStatement(statement)
 
-    final override fun visitNumberStatement(statement: SlNumberValue, data: Nothing?) {
+    final override fun visitNumberStatement(statement: SlNumberStatement, data: Nothing?) {
         visitNumberStatement(statement)
     }
 
-    open fun visitNumberStatement(statement: SlNumberValue) = visitStatement(statement)
+    open fun visitNumberStatement(statement: SlNumberStatement) = visitStatement(statement)
 
-    final override fun visitFormulaStatement(statement: SlFormulaValue, data: Nothing?) {
+    final override fun visitFormulaStatement(statement: SlFormulaStatement, data: Nothing?) {
         visitFormulaStatement(statement)
     }
 
-    open fun visitFormulaStatement(statement: SlFormulaValue) = visitStatement(statement)
+    open fun visitFormulaStatement(statement: SlFormulaStatement) = visitStatement(statement)
 
     final override fun visitExpression(expression: SlExpression, data: Nothing?) {
         visitExpression(expression)

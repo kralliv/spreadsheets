@@ -2,7 +2,7 @@ package de.krall.spreadsheets.value.parser
 
 import de.krall.spreadsheets.value.TreeDumper
 import de.krall.spreadsheets.value.parser.diagnotic.Diagnostic
-import de.krall.spreadsheets.value.parser.tree.SlValue
+import de.krall.spreadsheets.value.parser.tree.SlStatement
 import de.krall.spreadsheets.test.TestCaseResource
 import org.junit.jupiter.api.DynamicNode
 import org.junit.jupiter.api.DynamicTest
@@ -41,7 +41,7 @@ class ParseTest {
         return dump(statement, diagnostics)
     }
 
-    private fun parse(text: String): Pair<SlValue, List<Diagnostic>> {
+    private fun parse(text: String): Pair<SlStatement, List<Diagnostic>> {
         val context = ProcessingContext()
 
         val input = Segment(text)
@@ -53,7 +53,7 @@ class ParseTest {
         return statement to context.diagnostics
     }
 
-    private fun dump(statement: SlValue, diagnostics: List<Diagnostic>): String {
+    private fun dump(statement: SlStatement, diagnostics: List<Diagnostic>): String {
         val buffer = StringBuilder()
         statement.accept(TreeDumper(buffer), 0)
         buffer.appendLine()

@@ -1,6 +1,10 @@
 package de.krall.spreadsheets.value
 
-sealed class Reference {
-    data class Cell(val cell: de.krall.spreadsheets.grid.Cell) : Reference()
-    data class Area(val area: de.krall.spreadsheets.grid.Area) : Reference()
-}
+import de.krall.spreadsheets.grid.Area
+import de.krall.spreadsheets.grid.Cell
+
+sealed interface Referencing
+
+class Reference(val cell: Cell) : Referencing
+
+class ReferenceRange(val area: Area) : Referencing

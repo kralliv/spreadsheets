@@ -19,7 +19,7 @@ class ValueField : STextField() {
 
         addTextChangeListener {
             var start = System.nanoTime()
-            val (_, diagnostics) = processor.parseValue(text)
+            val (_, diagnostics) = processor.parseValueTree(text)
             println((System.nanoTime() - start).nanoseconds.inWholeMicroseconds)
 
             diagnosticHighlighter.set(diagnostics)

@@ -2,7 +2,7 @@ package de.krall.spreadsheets.value.formula
 
 import de.krall.spreadsheets.value.ComputedValue
 
-interface Expression {
+sealed interface Expression {
 
     fun compute(references: ReferenceResolver): ComputedValue?
 }

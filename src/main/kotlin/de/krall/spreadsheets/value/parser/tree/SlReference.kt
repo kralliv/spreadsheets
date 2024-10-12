@@ -1,6 +1,6 @@
 package de.krall.spreadsheets.value.parser.tree
 
-import de.krall.spreadsheets.value.Reference
+import de.krall.spreadsheets.value.Referencing
 import de.krall.spreadsheets.value.parser.SlSource
 
 class SlReference(
@@ -9,7 +9,7 @@ class SlReference(
     override val source: SlSource? = null,
 ) : SlExpression() {
 
-    var referenceOrNull: Reference? = null
+    var referencingOrNull: Referencing? = null
 
     override fun <D, R> accept(visitor: SlVisitor<D, R>, data: D): R {
         return visitor.visitReference(this, data)
