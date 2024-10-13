@@ -5,7 +5,7 @@ import de.krall.spreadsheets.value.Reference
 
 class ReferenceExpression(val reference: Reference) : Expression {
 
-    override fun compute(references: ReferenceResolver): ComputedValue {
-        return ComputedValue.Reference(reference)
+    override fun compute(references: ReferenceResolver): ComputedValue? {
+        return references.resolve(reference)
     }
 }

@@ -14,5 +14,6 @@ object Diagnostics {
     val TYPE_MISMATCH = DiagnosticFactory2<Type, Type>("TYPE_MISMATCH", Severity.ERROR, "Type mismatch: expected '{}' but found '{}'")
 
     val UNKNOWN_FUNCTION = DiagnosticFactory1<String>("UNKNOWN_FUNCTION", Severity.ERROR, "Unknown function '{}'")
-    val MISSING_FUNCTION_ARGUMENT = DiagnosticFactory1<Type>("MISSING_FUNCTION_ARGUMENT", Severity.ERROR, "No value passed for argument of type '{}'")
+    val MISSING_ARGUMENT = DiagnosticFactory1<Type>("MISSING_ARGUMENT", Severity.ERROR, "No value passed for argument of type '{}'")
+    val TOO_MANY_ARGUMENTS = DiagnosticFactory0("TOO_MANY_ARGUMENTS", Severity.ERROR, "Too many arguments passed")
 }

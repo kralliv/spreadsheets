@@ -52,7 +52,7 @@ object ReferenceResolver : TreeAnalyser {
             return null
         }
 
-        return Reference(Cell(location.row, location.column))
+        return Reference(Cell(location.column, location.row))
     }
 
     private fun parseReferenceRange(startName: String, endName: String): ReferenceRange? {
@@ -76,22 +76,22 @@ object ReferenceResolver : TreeAnalyser {
             else -> endLocation.row to startLocation.row
         }
 
-        val area = if (startLocation.isInfiniteColumn || endLocation.isInfiniteColumn) {
+        val area = if (startLocation.isInfiniteRow || endLocation.isInfiniteRow) {
             val columnOffset = when {
-                !startLocation.isInfiniteColumn -> startLocation.column
-                !endLocation.isInfiniteColumn -> endLocation.column
-                else -> null
-            }
-
-            Column(minRow, maxRow - minRow + 1, columnOffset)
-        } else if (startLocation.isInfiniteRow || endLocation.isInfiniteRow) {
-            val rowOffset = when {
                 !startLocation.isInfiniteRow -> startLocation.row
                 !endLocation.isInfiniteRow -> endLocation.row
                 else -> null
             }
 
-            Row(minColumn, maxColumn - minColumn + 1, rowOffset)
+            Column(minColumn, maxColumn - minColumn + 1, columnOffset)
+        } else if (startLocation.isInfiniteColumn || endLocation.isInfiniteColumn) {
+            val rowOffset = when {
+                !startLocation.isInfiniteColumn -> startLocation.column
+                !endLocation.isInfiniteColumn -> endLocation.column
+                else -> null
+            }
+
+            Row(minRow, maxRow - minRow + 1, rowOffset)
         } else {
             Rectangle(minColumn, minRow, maxColumn - minColumn + 1, maxRow - minRow + 1)
         }
@@ -99,7 +99,7 @@ object ReferenceResolver : TreeAnalyser {
         return ReferenceRange(area)
     }
 
-    private data class CellLocation(val row: Int, val column: Int) {
+    private data class CellLocation(val column: Int, val row: Int) {
 
         val isInfiniteRow: Boolean
             get() = row == -1
@@ -128,7 +128,7 @@ object ReferenceResolver : TreeAnalyser {
 
         var row = -1
         while (isDigit(reader.c)) {
-            val value = reader.c - '9'
+            val value = reader.c - '0'
             if (row != -1) {
                 row *= 10
                 row += value
@@ -139,9 +139,15 @@ object ReferenceResolver : TreeAnalyser {
             reader.nextChar()
         }
 
+        // Rows are one based in the UI
+        if (row == 0) return null
+        if (row > 0) {
+            row -= 1
+        }
+
         if (!reader.isEof()) return null
 
-        return CellLocation(row, column)
+        return CellLocation(column, row)
     }
 
     private fun isLetter(c: Char): Boolean {

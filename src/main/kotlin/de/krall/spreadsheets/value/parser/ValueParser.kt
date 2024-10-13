@@ -1,6 +1,7 @@
 package de.krall.spreadsheets.value.parser
 
 import de.krall.spreadsheets.value.ParsedValue
+import de.krall.spreadsheets.value.Value
 import de.krall.spreadsheets.value.formula.Formula
 import de.krall.spreadsheets.value.parser.analysis.ReferenceResolver
 import de.krall.spreadsheets.value.parser.analysis.TypeResolver
@@ -13,21 +14,26 @@ import de.krall.spreadsheets.value.parser.tree.SlStatement
 
 class ValueParser {
 
-    private val analysers = listOf(
-        ReferenceResolver,
-        TypeResolver,
-    )
+    fun parseValue(value: String): Value {
+        val context = ProcessingContext()
 
-    fun parseValue(value: String): ParsedValue {
-        val (statement, _) = parseValueTree(value)
+        val input = Segment(value)
+        val lexer = SlLexer(input)
+        val parser = SimpleParser(lexer, context)
 
-        return when(statement){
+        return parser.parseValue()
+    }
+
+    fun parseParsedValue(value: String): ParsedValue {
+        val (statement, _) = parseParsedValueTree(value)
+
+        return when (statement) {
             null -> ParsedValue.BadFormula
             else -> ParsedValueBuilder.build(statement)
         }
     }
 
-    fun parseValueTree(value: String): ParseResult<SlStatement> {
+    fun parseParsedValueTree(value: String): ParseResult<SlStatement> {
         return process(value) { it.parseValue() }
     }
 
@@ -68,6 +74,11 @@ class ValueParser {
 
         return parse(parser)
     }
+
+    private val analysers = listOf(
+        ReferenceResolver,
+        TypeResolver,
+    )
 
     private fun analyse(element: SlElement, context: ProcessingContext) {
         for (analyser in analysers) {

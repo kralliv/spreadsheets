@@ -42,6 +42,13 @@ object ReferenceRangeType : AbstractType() {
     override fun toString(): String = "reference-range"
 }
 
+object NothingType : AbstractType() {
+
+    override fun isAssignableFrom(other: Type): Boolean = false
+
+    override fun toString(): String = "nothing"
+}
+
 object ErrorType : AbstractType() {
 
     override fun isAssignableFrom(other: Type): Boolean = false

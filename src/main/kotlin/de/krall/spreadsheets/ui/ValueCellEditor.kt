@@ -1,14 +1,16 @@
 package de.krall.spreadsheets.ui
 
+import de.krall.spreadsheets.value.Value
+import de.krall.spreadsheets.value.parser.ValueParser
 import fernice.reflare.classes
 import java.awt.Component
 import javax.swing.AbstractCellEditor
 import javax.swing.JTable
 import javax.swing.table.TableCellEditor
 
-class ValueCellEditor : AbstractCellEditor(), TableCellEditor {
+class ValueCellEditor(val parser: ValueParser) : AbstractCellEditor(), TableCellEditor {
 
-    private val field = ValueField()
+    private val field = ValueField(parser)
 
     init {
         field.classes.add("value-field-cell")
@@ -19,7 +21,9 @@ class ValueCellEditor : AbstractCellEditor(), TableCellEditor {
     }
 
     override fun getCellEditorValue(): Any? {
-        return field.text
+        val text = field.text
+        if (text.isEmpty()) return null
+        return parser.parseValue(text)
     }
 
     override fun getTableCellEditorComponent(
@@ -29,7 +33,14 @@ class ValueCellEditor : AbstractCellEditor(), TableCellEditor {
         row: Int,
         column: Int,
     ): Component {
-        field.text = value as String? ?: ""
+        value as Value?
+
+        field.text = when (value) {
+            null -> ""
+            is Value.Text -> value.text
+            is Value.Number -> value.number.toString()
+            is Value.Formula -> "=${value.formula}"
+        }
         return field
     }
 }

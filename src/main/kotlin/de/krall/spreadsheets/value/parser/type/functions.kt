@@ -7,7 +7,7 @@ internal fun fixed(vararg type: Type): ParameterTypes {
 }
 
 internal fun variadic(type: Type): ParameterTypes {
-    return ParameterTypes(fixed = listOf(), variadic = null)
+    return ParameterTypes(fixed = listOf(), variadic = type)
 }
 
 class FunctionDefinition(

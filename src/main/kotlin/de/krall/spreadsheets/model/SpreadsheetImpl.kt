@@ -22,11 +22,11 @@ import kotlin.concurrent.read
 import kotlin.concurrent.thread
 import kotlin.concurrent.write
 
-class SpreadsheetImpl : Spreadsheet {
+class SpreadsheetImpl(val parser: ValueParser) : Spreadsheet {
 
     private val listeners = CopyOnWriteArrayList<SpreadsheetListener>()
 
-    private val engine = SpreadsheetEngine(ValueParser(), lazyEvaluation = true) { column, row, _ ->
+    private val engine = SpreadsheetEngine(parser, lazyEvaluation = true) { column, row, _ ->
         val cell = CellImpl(column, row)
 
         listeners.forEach { it.cellChanged(cell) }
@@ -133,22 +133,26 @@ private class SpreadsheetEngine(
             references.removeIf { (candidate, _) -> candidate === node }
         }
 
-        fun takeDependents(row: Int, column: Int): List<Node> {
+        fun takeDependents(column: Int, row: Int): List<Node> {
             val dependencies = mutableListOf<Node>()
             val iterator = references.iterator()
             while (iterator.hasNext()) {
                 val (node, referencing) = iterator.next()
 
                 when (referencing) {
-                    is Reference -> if (referencing.cell.contains(column, row)) {
-                        iterator.remove()
-                        dependencies.add(node)
+                    is Reference -> {
+                        if (referencing.cell.contains(column, row)) {
+                            iterator.remove()
+                            dependencies.add(node)
+                        }
                     }
 
-                    is ReferenceRange -> if (referencing.area.contains(column, row)) {
-                        // areas don't get removed here as there might
-                        // be other blanks cell covered.
-                        dependencies.add(node)
+                    is ReferenceRange -> {
+                        if (referencing.area.contains(column, row)) {
+                            // areas don't get removed here as there might
+                            // be other blanks cell covered.
+                            dependencies.add(node)
+                        }
                     }
                 }
             }
@@ -254,8 +258,11 @@ private class SpreadsheetEngine(
 
     private fun insert(column: Int, row: Int, attributes: CellAttributes): Node {
         val node = Node(column, row, attributes)
-        node.dependents.addAll(blankCells.takeDependents(row, column))
-        grid[row, column] = node
+        grid[column, row] = node
+
+        for (dependentNode in blankCells.takeDependents(column, row)) {
+            node.addDependent(dependentNode)
+        }
 
         invalidateNode(node)
 
@@ -306,7 +313,7 @@ private class SpreadsheetEngine(
     }
 
     private fun requestEvaluation(node: Node) {
-        if (node.attributes.evaluatedValue == EvaluatedValue.Unevaluated) {
+        if (node.attributes.evaluatedValue == EvaluatedValue.Unevaluated && node !in evaluationQueue) {
             evaluationQueue.put(node)
         }
     }
@@ -351,6 +358,9 @@ private class SpreadsheetEngine(
 
         val evaluatedValue = computedValue?.toEvaluatedValue()
         node.update(node.attributes.copy(evaluatedValue = evaluatedValue))
+
+        notifyNodeChanged(node)
+
         return evaluatedValue
     }
 

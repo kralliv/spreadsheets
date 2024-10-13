@@ -17,7 +17,6 @@ import de.krall.spreadsheets.value.parser.tree.SlReference
 import de.krall.spreadsheets.value.parser.tree.SlStatement
 import de.krall.spreadsheets.value.parser.tree.SlTextStatement
 import de.krall.spreadsheets.value.parser.tree.SlVisitor
-import de.krall.spreadsheets.value.parser.tree.SlVisitorVoid
 import de.krall.spreadsheets.value.parser.type.BuiltIns
 import de.krall.spreadsheets.value.parser.type.FunctionDefinition
 import de.krall.spreadsheets.value.parser.type.ParameterTypes
@@ -26,32 +25,27 @@ import de.krall.spreadsheets.value.parser.type.Type
 object TypeResolver : TreeAnalyser {
 
     override fun check(tree: SlElement, context: ProcessingContext) {
-        tree.accept(StatementTypeResolver(context))
-    }
-
-    private class StatementTypeResolver(val context: ProcessingContext) : SlVisitorVoid() {
-
-        override fun visitElement(element: SlElement) {
-            error("element is not an statement: $element")
-        }
-
-        override fun visitStatement(statement: SlStatement) {
-            error("unsupported statement: $statement")
-        }
-
-        override fun visitTextStatement(statement: SlTextStatement) {}
-
-        override fun visitNumberStatement(statement: SlNumberStatement) {}
-
-        override fun visitFormulaStatement(statement: SlFormulaStatement) {
-            statement.expression.accept(ExpressionTypeResolver(context), Unit)
-        }
+        tree.accept(ExpressionTypeResolver(context), Unit)
     }
 
     private class ExpressionTypeResolver(val context: ProcessingContext) : SlVisitor<Unit, Type>() {
 
         override fun visitElement(element: SlElement, data: Unit): Type {
             error("element is not an expression: $element")
+        }
+
+        override fun visitStatement(statement: SlStatement, data: Unit): Type {
+            error("unsupported statement: $statement")
+        }
+
+        override fun visitTextStatement(statement: SlTextStatement, data: Unit): Type = BuiltIns.Nothing
+
+        override fun visitNumberStatement(statement: SlNumberStatement, data: Unit): Type = BuiltIns.Nothing
+
+        override fun visitFormulaStatement(statement: SlFormulaStatement, data: Unit): Type {
+            statement.expression.accept(this, data)
+
+            return BuiltIns.Nothing
         }
 
         override fun visitLiteral(literal: SlLiteral, data: Unit): Type {
@@ -173,9 +167,9 @@ object TypeResolver : TreeAnalyser {
             val iterator = arguments.iterator()
 
             for (parameterType in function.parameterTypes.fixed) {
-                if (!iterator.hasNext()){
+                if (!iterator.hasNext()) {
                     val element = arguments.lastOrNull()?.first ?: functionCall
-                    context.report(Diagnostics.MISSING_FUNCTION_ARGUMENT.on(element, parameterType))
+                    context.report(Diagnostics.MISSING_ARGUMENT.on(element, parameterType))
                     return
                 }
                 val (argument, argumentType) = iterator.next()
@@ -191,6 +185,11 @@ object TypeResolver : TreeAnalyser {
                         context.report(Diagnostics.TYPE_MISMATCH.on(argument, parameterType, argumentType))
                     }
                 }
+            }
+
+            while (iterator.hasNext()) {
+                val (argument, _) = iterator.next()
+                context.report(Diagnostics.TOO_MANY_ARGUMENTS.on(argument))
             }
         }
     }

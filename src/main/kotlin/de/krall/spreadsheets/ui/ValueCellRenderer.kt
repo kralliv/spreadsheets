@@ -2,6 +2,7 @@ package de.krall.spreadsheets.ui
 
 import de.krall.spreadsheets.model.Spreadsheet
 import de.krall.spreadsheets.ui.components.SRendererLabel
+import de.krall.spreadsheets.value.ComputationError
 import de.krall.spreadsheets.value.EvaluatedValue
 import java.awt.Component
 import javax.swing.JTable
@@ -21,15 +22,18 @@ class ValueCellRenderer(val spreadsheet: Spreadsheet) : TableCellRenderer {
     ): Component {
         assert(column == 0) { "renderer should not be used for the first non-value column" }
 
-        val cell = spreadsheet[row, column - 1]
+        val cell = spreadsheet[column - 1, row]
 
         valueLabel.text = when (val value = cell.evaluatedValue) {
             null -> ""
             is EvaluatedValue.Text -> value.text
             is EvaluatedValue.Number -> value.number.toString()
             is EvaluatedValue.Unevaluated -> "evaluating..."
-            is EvaluatedValue.BadFormula -> "#INVALID"
-            is EvaluatedValue.CircularDependencies -> "#REF"
+            is EvaluatedValue.Error -> when (value.error) {
+                is ComputationError.BadFormula -> "#INVALID"
+                is ComputationError.CircularDependency -> "#REF"
+                is ComputationError.DivisionByZero -> "#DIV/0"
+            }
         }
 
         return valueLabel

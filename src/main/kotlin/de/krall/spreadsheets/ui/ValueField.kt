@@ -7,7 +7,7 @@ import java.awt.event.MouseEvent
 import javax.swing.ToolTipManager
 import kotlin.time.Duration.Companion.nanoseconds
 
-class ValueField : STextField() {
+class ValueField(val parser: ValueParser) : STextField() {
 
     private val diagnosticHighlighter = DiagnosticHighlighter()
 
@@ -15,12 +15,8 @@ class ValueField : STextField() {
         columns = 20
         highlighter = diagnosticHighlighter
 
-        val processor = ValueParser()
-
         addTextChangeListener {
-            var start = System.nanoTime()
-            val (_, diagnostics) = processor.parseValueTree(text)
-            println((System.nanoTime() - start).nanoseconds.inWholeMicroseconds)
+            val (_, diagnostics) = parser.parseParsedValueTree(text)
 
             diagnosticHighlighter.set(diagnostics)
             repaint()
