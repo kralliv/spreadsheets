@@ -50,15 +50,11 @@ abstract class AbstractParser(
 
     fun recover(set: TokenTypeSet, diagnosticFactory: DiagnosticFactory0): Boolean {
         var span = span()
-        var seenAtLeastOneToken = false
         while (!eof()) {
             if (at(set)) return true
-            if (recoverySets.isNotEmpty() && at(recoverySets.first())) break
+            if (recoverySets.isNotEmpty() && at(recoverySets.first())) return false
 
             advance()
-            seenAtLeastOneToken = true
-        }
-        if (seenAtLeastOneToken) {
             report(diagnosticFactory.on(invalid(span.finish())))
             span = span()
         }
@@ -67,14 +63,19 @@ abstract class AbstractParser(
 
     fun expect(set: TokenTypeSet, diagnosticFactory: DiagnosticFactory0): Boolean {
         var span = span()
-        while (!eof()) {
+        if (eof()) {
+            report(diagnosticFactory.on(invalid(span.finish())))
+            span = span()
+            return false
+        }
+        do {
             if (at(set)) return true
-            if (recoverySets.isNotEmpty() && at(recoverySets.first())) break
+            if (recoverySets.isNotEmpty() && at(recoverySets.first())) return false
 
             advance()
-        }
-        report(diagnosticFactory.on(invalid(span.finish())))
-        span = span()
+            report(diagnosticFactory.on(invalid(span.finish())))
+            span = span()
+        } while (!eof())
         return false
     }
 

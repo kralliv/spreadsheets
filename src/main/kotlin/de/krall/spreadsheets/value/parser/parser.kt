@@ -80,18 +80,21 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
     private fun parseTextValue(): SlTextStatement {
         val span = span()
 
-        val text = buildString {
-            while (!eof()) {
-                append(token.text)
-                advance()
-            }
+        while (!eof()) {
+            advance()
         }
 
-        return SlTextStatement(text, span.finish())
+        val source = span.finish()
+
+        return SlTextStatement(source.text, source)
     }
 
     fun parseFormula(): SlExpression {
-        return parseExpression()
+        return if (expect(EXPRESSION_START, Diagnostics.EXPECTED_EXPRESSION)) {
+            parseExpression()
+        } else {
+            SlInvalid()
+        }
     }
 
     private fun parseExpression(): SlExpression {
@@ -143,7 +146,11 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
                 val operator = PREFIX_OPERATORS[token.type]
                 advance()
 
-                val expression = parsePrefixExpression()
+                val expression = if (expect(PREFIX_EXPRESSION_START, Diagnostics.EXPECTED_EXPRESSION)) {
+                    parsePrefixExpression()
+                } else {
+                    SlInvalid(span().finish())
+                }
 
                 SlPrefixExpression(operator, expression, span.finish())
             }

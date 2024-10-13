@@ -1,15 +1,9 @@
 package de.krall.spreadsheets.value.parser
 
+import de.krall.spreadsheets.value.TreeDumper
+
 fun main() {
-    init()
-
-    repeat(100000) {
-        test()
-    }
-}
-
-private fun init() {
-    val text = "=(121+ 1)*sum(a1, 5)"
+    val text = "a a"
 
     val processor = ValueParser()
 
@@ -17,12 +11,7 @@ private fun init() {
 
     println(statement)
     diagnostics.forEach { println(it) }
-}
-
-private fun test() {
-    val text = "=(121+ 1)*sum(a1, 5)"
-
-    val processor = ValueParser()
-
-    val (statement, diagnostics) = processor.parseParsedValueTree(text)
+    println(buildString {
+        statement?.accept(TreeDumper(this), 0)
+    })
 }

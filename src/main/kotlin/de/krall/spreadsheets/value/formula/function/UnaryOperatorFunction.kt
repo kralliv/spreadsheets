@@ -5,7 +5,7 @@ import de.krall.spreadsheets.value.formula.ReferenceResolver
 
 abstract class UnaryOperatorFunction : AbstractFunction() {
 
-    override fun call(arguments: List<ComputedValue?>, references: ReferenceResolver): ComputedValue {
+    override fun call(arguments: List<ComputedValue?>, references: ReferenceResolver): ComputedValue? {
         assert(arguments.size == 1)
 
         val only = when (val value = resolve(arguments[0], references)) {
@@ -20,5 +20,5 @@ abstract class UnaryOperatorFunction : AbstractFunction() {
         return compute(only)
     }
 
-    protected abstract fun compute(value: Double): ComputedValue
+    protected abstract fun compute(value: Double): ComputedValue?
 }

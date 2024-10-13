@@ -1,6 +1,7 @@
 package de.krall.spreadsheets.value.parser.type
 
 import de.krall.spreadsheets.value.formula.function.AddFunction
+import de.krall.spreadsheets.value.formula.function.DelayFunction
 import de.krall.spreadsheets.value.formula.function.DivideFunction
 import de.krall.spreadsheets.value.formula.function.MinusFunction
 import de.krall.spreadsheets.value.formula.function.ModuloFunction
@@ -27,5 +28,6 @@ object BuiltIns {
         FunctionDefinition("divide", fixed(AnySingular, AnySingular), Number, DivideFunction),
         FunctionDefinition("modulo", fixed(AnySingular, AnySingular), Number, ModuloFunction),
         FunctionDefinition("negate", fixed(AnySingular, AnySingular), Number, ModuloFunction),
+        FunctionDefinition("delay", fixed(Number), Nothing, DelayFunction),
     )
 }

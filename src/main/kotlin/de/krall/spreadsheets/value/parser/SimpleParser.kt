@@ -15,16 +15,17 @@ class SimpleParser(tokens: TokenSequence, context: ProcessingContext) : Abstract
     private fun parseFormulaValue(): Value.Formula {
         assert(at(TokenType.EQ))
 
-        advance()
+        advance() // EQ
 
-        val formula = buildString {
-            while (!eof()) {
-                append(token.text)
-                advance()
-            }
+        val span = span()
+
+        while (!eof()) {
+            advance()
         }
 
-        return Value.Formula(formula)
+        val source = span.finish()
+
+        return Value.Formula(source.text)
     }
 
     private fun parseNumberValue(): Value.Number {
@@ -37,13 +38,14 @@ class SimpleParser(tokens: TokenSequence, context: ProcessingContext) : Abstract
     }
 
     private fun parseTextValue(): Value.Text {
-        val text = buildString {
-            while (!eof()) {
-                append(token.text)
-                advance()
-            }
+        val span = span()
+
+        while (!eof()) {
+            advance()
         }
 
-        return Value.Text(text)
+        val source = span.finish()
+
+        return Value.Text(source.text)
     }
 }

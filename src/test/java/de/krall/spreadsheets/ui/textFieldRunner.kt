@@ -1,5 +1,6 @@
 package de.krall.spreadsheets.ui
 
+import de.krall.spreadsheets.value.parser.ValueParser
 import fernice.reflare.FlareLookAndFeel
 import java.awt.Dimension
 import javax.swing.JFrame
@@ -16,7 +17,7 @@ fun main() {
 
     val container = JPanel()
 
-    val textfield = ValueField()
+    val textfield = ValueField(ValueParser())
     container.add(textfield)
 
     frame.contentPane = container

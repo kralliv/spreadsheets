@@ -4,6 +4,7 @@ import de.krall.spreadsheets.model.Cell
 import de.krall.spreadsheets.model.Spreadsheet
 import de.krall.spreadsheets.model.SpreadsheetListener
 import de.krall.spreadsheets.util.invokeLater
+import de.krall.spreadsheets.value.Value
 import de.krall.spreadsheets.value.parser.ValueParser
 import org.jdesktop.swingx.JXTable
 
@@ -21,7 +22,7 @@ class SpreadsheetTable(val spreadsheet: Spreadsheet, val parser: ValueParser) : 
             }
         })
 
-        setDefaultRenderer(String::class.java, ValueCellRenderer(spreadsheet))
-        setDefaultEditor(String::class.java, ValueCellEditor(parser))
+        setDefaultRenderer(Value::class.java, ValueCellRenderer(spreadsheet))
+        setDefaultEditor(Value::class.java, ValueCellEditor(parser))
     }
 }

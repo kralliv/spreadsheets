@@ -34,8 +34,11 @@ class SimpleTokenSequenceWalker(private val input: TokenSequence) : TokenSequenc
     override val token: Token
         get() = currentToken ?: error("eof")
 
+    private var initialSpan = false
+
     init {
         advance()
+        initialSpan = true
     }
 
     override fun advance() {
@@ -51,6 +54,7 @@ class SimpleTokenSequenceWalker(private val input: TokenSequence) : TokenSequenc
 
         this.index = index
         this.currentToken = tokens.getOrNull(index)
+        this.initialSpan = false
     }
 
     override fun eof(): Boolean = index >= tokens.size
@@ -79,14 +83,20 @@ class SimpleTokenSequenceWalker(private val input: TokenSequence) : TokenSequenc
         return tokens.getOrNull(index)
     }
 
-    override fun span(): TokenSequenceWalker.Span = SpanImpl(index)
+    private fun spanIndex(): Int {
+        return if (initialSpan) 0 else index
+    }
+
+    override fun span(): TokenSequenceWalker.Span {
+        return SpanImpl(spanIndex())
+    }
 
     private inner class SpanImpl(
         private val startIndex: Int,
     ) : TokenSequenceWalker.Span {
 
         override fun finish(): SlSource {
-            val endIndex = index
+            val endIndex = spanIndex()
 
             val startPosition = tokens.getOrNull(startIndex)?.offset ?: lastPosition()
             val endPosition = tokens.getOrNull(endIndex)?.offset ?: lastPosition()

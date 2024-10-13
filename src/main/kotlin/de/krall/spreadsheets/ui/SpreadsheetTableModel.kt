@@ -9,6 +9,19 @@ class SpreadsheetTableModel(val spreadsheet: Spreadsheet) : AbstractTableModel()
     override fun getRowCount(): Int = 100
     override fun getColumnCount(): Int = 100
 
+    override fun getColumnName(column: Int): String {
+        if (column == 0) return ""
+        return buildString {
+            var c = column - 1
+            while (c >= 0) {
+                append('A' + (c % 26))
+
+                c = c / 26 - 1
+            }
+            reverse()
+        }
+    }
+
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any? {
         return if (columnIndex == 0) {
             (rowIndex + 1).toString()
@@ -25,7 +38,8 @@ class SpreadsheetTableModel(val spreadsheet: Spreadsheet) : AbstractTableModel()
     }
 
     override fun getColumnClass(columnIndex: Int): Class<*>? {
-        return String::class.java
+        if (columnIndex == 0) return String::class.java
+        return Value::class.java
     }
 
     override fun isCellEditable(rowIndex: Int, columnIndex: Int): Boolean {
