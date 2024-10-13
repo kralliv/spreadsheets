@@ -75,7 +75,7 @@ object TypeResolver : TreeAnalyser {
         }
 
         override fun visitInvalid(invalid: SlInvalid, data: Unit): Type {
-            val type = BuiltIns.Nothing
+            val type = BuiltIns.Error
             invalid.typeOrNull = type
             return type
         }
@@ -91,12 +91,12 @@ object TypeResolver : TreeAnalyser {
             }
 
             val leftType = expression.left.accept(this, data)
-            if (!inputType.isAssignableFrom(leftType)) {
+            if (leftType != BuiltIns.Error && !inputType.isAssignableFrom(leftType)) {
                 context.report(Diagnostics.TYPE_MISMATCH.on(expression.left, inputType, leftType))
             }
 
             val rightType = expression.right.accept(this, data)
-            if (!inputType.isAssignableFrom(rightType)) {
+            if (rightType != BuiltIns.Error && !inputType.isAssignableFrom(rightType)) {
                 context.report(Diagnostics.TYPE_MISMATCH.on(expression.right, inputType, rightType))
             }
 
@@ -120,7 +120,7 @@ object TypeResolver : TreeAnalyser {
             }
 
             val onlyType = expression.expression.accept(this, data)
-            if (!inputType.isAssignableFrom(onlyType)) {
+            if (onlyType != BuiltIns.Error && !inputType.isAssignableFrom(onlyType)) {
                 context.report(Diagnostics.TYPE_MISMATCH.on(expression.expression, inputType, onlyType))
             }
 
@@ -145,7 +145,7 @@ object TypeResolver : TreeAnalyser {
 
             if (functionCandidates.isEmpty()) {
                 context.report(Diagnostics.UNKNOWN_FUNCTION.on(functionCall, functionCall.name))
-                return BuiltIns.Nothing
+                return BuiltIns.Error
             }
 
             val argumentTypes = functionCall.arguments.map { it.accept(this, data) }
@@ -155,7 +155,7 @@ object TypeResolver : TreeAnalyser {
             if (function == null) {
                 val functionCandidate = functionCandidates.maxBy { it.parameterTypes.score(argumentTypes) }
                 reportArgumentMismatches(functionCall, argumentTypes, functionCandidate)
-                return BuiltIns.Nothing
+                return BuiltIns.Error
             }
 
             functionCall.functionOrNull = function
@@ -163,22 +163,32 @@ object TypeResolver : TreeAnalyser {
             return function.returnType
         }
 
-        fun reportArgumentMismatches(functionCall: SlFunctionCall, argumentTypes: List<Type>, function: FunctionDefinition) {
-            val iterator = argumentTypes.iterator()
+        fun reportArgumentMismatches(
+            functionCall: SlFunctionCall,
+            argumentTypes: List<Type>,
+            function: FunctionDefinition,
+        ) {
+            val arguments = functionCall.arguments.zip(argumentTypes)
+
+            val iterator = arguments.iterator()
 
             for (parameterType in function.parameterTypes.fixed) {
-                if (!iterator.hasNext()) return
-                val argumentType = iterator.next()
-                if (!parameterType.isAssignableFrom(argumentType)) {
-                    context.report(Diagnostics.TYPE_MISMATCH.on(functionCall, parameterType, argumentType))
+                if (!iterator.hasNext()){
+                    val element = arguments.lastOrNull()?.first ?: functionCall
+                    context.report(Diagnostics.MISSING_FUNCTION_ARGUMENT.on(element, parameterType))
+                    return
+                }
+                val (argument, argumentType) = iterator.next()
+                if (argumentType != BuiltIns.Error && !parameterType.isAssignableFrom(argumentType)) {
+                    context.report(Diagnostics.TYPE_MISMATCH.on(argument, parameterType, argumentType))
                 }
             }
 
             function.parameterTypes.variadic?.let { parameterType ->
                 while (iterator.hasNext()) {
-                    val argumentType = iterator.next()
-                    if (!parameterType.isAssignableFrom(argumentType)) {
-                        context.report(Diagnostics.TYPE_MISMATCH.on(functionCall, parameterType, argumentType))
+                    val (argument, argumentType) = iterator.next()
+                    if (argumentType != BuiltIns.Error && !parameterType.isAssignableFrom(argumentType)) {
+                        context.report(Diagnostics.TYPE_MISMATCH.on(argument, parameterType, argumentType))
                     }
                 }
             }

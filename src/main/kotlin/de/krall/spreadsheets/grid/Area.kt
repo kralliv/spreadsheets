@@ -12,7 +12,7 @@ interface FiniteArea : Area {
     val points: Sequence<Point>
 }
 
-class Cell(
+data class Cell(
     val x: Int,
     val y: Int,
 ) : FiniteArea {
@@ -28,7 +28,7 @@ class Cell(
     }
 }
 
-class Rectangle(
+data class Rectangle(
     val x: Int,
     val y: Int,
     val width: Int,
@@ -59,14 +59,14 @@ class Rectangle(
 
 interface InfiniteArea : Area
 
-class Column(val x: Int, val width: Int, val y: Int? = null) : InfiniteArea {
+data class Column(val x: Int, val width: Int, val y: Int? = null) : InfiniteArea {
 
     override fun contains(x: Int, y: Int): Boolean {
         return x >= this.x && x < this.x + width && (this.y == null || y >= this.y)
     }
 }
 
-class Row(val y: Int, val height: Int, val x: Int? = null) : InfiniteArea {
+data class Row(val y: Int, val height: Int, val x: Int? = null) : InfiniteArea {
 
     override fun contains(x: Int, y: Int): Boolean {
         return y >= this.y && y < this.y + height && (this.x == null || x >= this.x)

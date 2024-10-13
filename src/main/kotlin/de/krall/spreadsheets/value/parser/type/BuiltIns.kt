@@ -14,7 +14,7 @@ object BuiltIns {
     val Number = NumberType
     val Reference = ReferenceType
     val ReferenceRange = ReferenceRangeType
-    val Nothing = NothingType
+    val Error = ErrorType
 
     val AnySingular = UnionType(Text, Number, Reference)
 

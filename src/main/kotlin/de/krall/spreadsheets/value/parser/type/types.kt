@@ -42,11 +42,11 @@ object ReferenceRangeType : AbstractType() {
     override fun toString(): String = "reference-range"
 }
 
-object NothingType : AbstractType() {
+object ErrorType : AbstractType() {
 
     override fun isAssignableFrom(other: Type): Boolean = false
 
-    override fun toString(): String = "nothing"
+    override fun toString(): String = "error"
 }
 
 fun UnionType(vararg types: Type): UnionType = UnionType(types.toSet())
