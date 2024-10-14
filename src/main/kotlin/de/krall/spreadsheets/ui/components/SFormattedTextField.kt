@@ -1,13 +1,13 @@
 package de.krall.spreadsheets.ui.components
 
-import de.krall.spreadsheets.util.add
-import de.krall.spreadsheets.util.forEach
-import de.krall.spreadsheets.util.remove
-import javax.swing.JTextField
+import de.krall.spreadsheets.ui.event.add
+import de.krall.spreadsheets.ui.event.forEach
+import de.krall.spreadsheets.ui.event.remove
+import fernice.reflare.light.FFormattedTextField
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 
-open class STextField : JTextField() {
+open class SFormattedTextField : FFormattedTextField() {
 
     init {
         document.addDocumentListener(object : DocumentListener {
@@ -22,7 +22,7 @@ open class STextField : JTextField() {
                 if (text != previousText) {
                     previousText = text
 
-                    val event = TextChangeEvent(this@STextField, previousText, text)
+                    val event = TextChangeEvent(this@SFormattedTextField, previousText, text)
                     listenerList.forEach<TextChangeListener> { it.textChanged(event) }
                 }
             }

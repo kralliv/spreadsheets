@@ -7,7 +7,7 @@ import java.awt.Rectangle
  * Label specifically indented be exclusively used in renderers for performance reasons.
  * Will cause glitchy behaviour anywhere else.
  */
-class SRendererLabel : FLabel() {
+open class SRendererLabel : FLabel() {
 
     override fun invalidate() {}
 

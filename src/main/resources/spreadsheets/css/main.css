@@ -1,7 +1,82 @@
-
-.value-field-cell {
-    margin: 0;
-    border: none;
-    border-radius: 0;
-    padding: 2px 3px;
+:root {
+    font-family: ".AppleSystemUIFont", Inter, sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--font-color-normal);
 }
+
+:root {
+    --font-color-normal: #000000;
+
+    --background-normal: hsl(0, 0%, 95%);
+
+    --table-header-background-normal: hsl(0, 0%, 95%);
+    --table-header-background-hover: hsl(0, 0%, 95%);
+    --table-header-background-selected: hsl(224, 54%, 90%);
+
+    --table-cell-border-selected: hsl(224, 80%, 50%);
+    --table-cell-background-normal: hsl(0, 0%, 100%);
+    --table-cell-background-selected: hsl(224, 76%, 95%);
+}
+.s-root {
+    background: var(--background-normal);
+}
+
+.s-table-header {
+    background: var(--table-header-background-normal);
+    padding: 2px 4px;
+    color: var(--font-color-normal);
+}
+
+.s-table-header:active {
+    background: var(--table-header-background-selected);
+}
+
+/*.s-table-header:hover {*/
+/*    background: var(--table-header-background-hover);*/
+/*}*/
+
+.s-table-cell-renderer {
+    background: var(--table-cell-background-normal);
+    color: var(--font-color-normal);
+    padding: 2px 4px;
+}
+
+.s-table-cell-renderer:active {
+    background: var(--table-cell-background-selected);
+}
+
+.s-table-cell-renderer:focus {
+    border: 2px var(--table-cell-border-selected) solid;
+    background: var(--table-cell-background-selected);
+    padding: 0 2px;
+}
+
+.t-table-cell-renderer-top {
+    border-top: 1px var(--table-cell-border-selected) solid;
+    padding-top: 1px;
+}
+
+.t-table-cell-renderer-right {
+    border-right: 1px var(--table-cell-border-selected) solid;
+    padding-right: 3px;
+}
+
+.t-table-cell-renderer-bottom {
+    border-bottom: 1px var(--table-cell-border-selected) solid;
+    padding-bottom: 1px;
+}
+
+.t-table-cell-renderer-left {
+    border-left: 1px var(--table-cell-border-selected) solid;
+    padding-left: 3px;
+}
+
+.s-table-cell-editor {
+    margin: 0;
+    border: 2px var(--table-cell-border-selected) solid;
+    border-radius: 0;
+    background: var(--table-cell-background-normal);
+    padding: 0 2px;
+}
+

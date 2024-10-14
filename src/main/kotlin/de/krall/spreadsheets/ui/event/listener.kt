@@ -1,4 +1,4 @@
-package de.krall.spreadsheets.util
+package de.krall.spreadsheets.ui.event
 
 import java.util.EventListener
 import javax.swing.SwingUtilities

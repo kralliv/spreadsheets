@@ -4,6 +4,8 @@ import de.krall.spreadsheets.value.Value
 import de.krall.spreadsheets.value.parser.ValueParser
 import fernice.reflare.classes
 import java.awt.Component
+import java.awt.event.MouseEvent
+import java.util.EventObject
 import javax.swing.AbstractCellEditor
 import javax.swing.JTable
 import javax.swing.table.TableCellEditor
@@ -13,17 +15,24 @@ class ValueCellEditor(val parser: ValueParser) : AbstractCellEditor(), TableCell
     private val field = ValueField(parser)
 
     init {
-        field.classes.add("value-field-cell")
+        field.classes.add("s-table-cell-editor")
+        field.addActionListener { fireEditingStopped() }
+    }
+
+    override fun isCellEditable(event: EventObject?): Boolean {
+        if (event is MouseEvent) {
+            return event.clickCount >= 2
+        }
+        return true
     }
 
     override fun stopCellEditing(): Boolean {
+        field.commitEdit()
         return super.stopCellEditing()
     }
 
     override fun getCellEditorValue(): Any? {
-        val text = field.text
-        if (text.isEmpty()) return null
-        return parser.parseValue(text)
+        return field.value
     }
 
     override fun getTableCellEditorComponent(
@@ -33,14 +42,7 @@ class ValueCellEditor(val parser: ValueParser) : AbstractCellEditor(), TableCell
         row: Int,
         column: Int,
     ): Component {
-        value as Value?
-
-        field.text = when (value) {
-            null -> ""
-            is Value.Text -> value.text
-            is Value.Number -> value.number.toString()
-            is Value.Formula -> "=${value.formula}"
-        }
+        field.value = value as Value?
         return field
     }
 }

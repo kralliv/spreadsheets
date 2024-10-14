@@ -1,8 +1,12 @@
 package de.krall.spreadsheets.ui
 
 import de.krall.spreadsheets.model.SpreadsheetImpl
+import de.krall.spreadsheets.ui.components.SContainer
 import de.krall.spreadsheets.ui.components.SScrollPane
 import de.krall.spreadsheets.value.parser.ValueParser
+import fernice.reflare.classes
+import fernice.reflare.style
+import java.awt.BorderLayout
 import java.awt.Dimension
 import javax.swing.JFrame
 import javax.swing.WindowConstants
@@ -23,7 +27,15 @@ class DocumentWindow : JFrame() {
 
         table = SpreadsheetTable(spreadsheet, parser)
 
-        contentPane.add(SScrollPane(table))
+        val scrollPane = SScrollPane(table)
+        scrollPane.viewport.border = null
+
+        val container = SContainer()
+        container.layout = BorderLayout()
+        container.classes.add("s-root")
+        container.add(scrollPane)
+
+        contentPane = container
     }
 
 
