@@ -1,4 +1,4 @@
-package de.krall.spreadsheets.ui
+package de.krall.spreadsheets.ui.table
 
 import de.krall.spreadsheets.ui.components.SRendererLabel
 import fernice.reflare.classes

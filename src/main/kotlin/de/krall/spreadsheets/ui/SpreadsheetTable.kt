@@ -3,17 +3,16 @@ package de.krall.spreadsheets.ui
 import de.krall.spreadsheets.model.Cell
 import de.krall.spreadsheets.model.Spreadsheet
 import de.krall.spreadsheets.model.SpreadsheetListener
-import de.krall.spreadsheets.ui.event.invokeLater
+import de.krall.spreadsheets.ui.table.HeaderCellRenderer
+import de.krall.spreadsheets.ui.table.RowHeaderCellRenderer
+import de.krall.spreadsheets.ui.table.STable
+import de.krall.spreadsheets.ui.util.invokeLater
 import de.krall.spreadsheets.value.Value
 import de.krall.spreadsheets.value.parser.ValueParser
-import org.jdesktop.swingx.JXTable
-import javax.swing.event.ChangeEvent
 import javax.swing.event.ListSelectionEvent
 import javax.swing.event.ListSelectionListener
-import javax.swing.event.TableColumnModelEvent
-import javax.swing.event.TableColumnModelListener
 
-class SpreadsheetTable(val spreadsheet: Spreadsheet, val parser: ValueParser) : JXTable() {
+class SpreadsheetTable(val spreadsheet: Spreadsheet, val parser: ValueParser) : STable() {
 
     init {
         isHorizontalScrollEnabled = true
@@ -30,13 +29,10 @@ class SpreadsheetTable(val spreadsheet: Spreadsheet, val parser: ValueParser) : 
             }
         })
 
-        tableHeader.defaultRenderer = HeaderCellRenderer()
-        getColumn(0).apply {
-            cellRenderer = HeaderCellRenderer()
-            preferredWidth = 60
-        }
+        tableHeader?.defaultRenderer = HeaderCellRenderer()
+        tableRowHeader?.defaultRenderer = RowHeaderCellRenderer()
 
-        for (index in 1..<model.columnCount) {
+        for (index in 0..<model.columnCount) {
             getColumn(index).preferredWidth = 100
         }
 

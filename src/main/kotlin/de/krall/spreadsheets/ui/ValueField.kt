@@ -1,11 +1,11 @@
 package de.krall.spreadsheets.ui
 
-import de.krall.spreadsheets.value.parser.ValueParser
 import de.krall.spreadsheets.ui.components.SFormattedTextField
 import de.krall.spreadsheets.ui.event.KeyStroke
 import de.krall.spreadsheets.ui.event.registerKeyboardAction
 import de.krall.spreadsheets.ui.highlight.DiagnosticHighlighter
 import de.krall.spreadsheets.value.Value
+import de.krall.spreadsheets.value.parser.ValueParser
 import java.awt.event.MouseEvent
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
@@ -19,6 +19,16 @@ class ValueField(val parser: ValueParser) : SFormattedTextField() {
 
     init {
         columns = 20
+        formatterFactory = DefaultFormatterFactory(FormatterImpl())
+
+        val toolTipManager = ToolTipManager.sharedInstance()
+        toolTipManager.registerComponent(this)
+
+        installHighlighting()
+        installActions()
+    }
+
+    private fun installHighlighting() {
         highlighter = diagnosticHighlighter
 
         addTextChangeListener {
@@ -27,18 +37,19 @@ class ValueField(val parser: ValueParser) : SFormattedTextField() {
             diagnosticHighlighter.set(diagnostics)
             repaint()
         }
-
-        val toolTipManager = ToolTipManager.sharedInstance()
-        toolTipManager.registerComponent(this)
     }
 
-    init {
-        formatterFactory = DefaultFormatterFactory(FormatterImpl())
-
-        registerKeyboardAction(KeyStroke("ENTER")) {
-            commitEdit()
-
-            fireActionPerformed()
+    private fun installActions() {
+//        registerKeyboardAction(KeyStroke("ENTER")) {
+//            commitEdit()
+//
+//            fireActionPerformed()
+//        }
+        registerKeyboardAction(KeyStroke("UP")) {
+            caretPosition = 0
+        }
+        registerKeyboardAction(KeyStroke("DOWN")) {
+            caretPosition = text.length
         }
     }
 

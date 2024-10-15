@@ -1,12 +1,7 @@
 package de.krall.spreadsheets.ui.event
 
 import java.util.EventListener
-import javax.swing.SwingUtilities
 import javax.swing.event.EventListenerList
-
-inline fun invokeLater(crossinline block: () -> Unit) {
-    SwingUtilities.invokeLater { block() }
-}
 
 inline fun <reified T : EventListener> EventListenerList.add(listener: T) {
     add(T::class.java, listener)

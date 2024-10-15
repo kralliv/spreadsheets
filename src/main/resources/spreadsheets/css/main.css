@@ -18,18 +18,24 @@
     --table-cell-background-normal: hsl(0, 0%, 100%);
     --table-cell-background-selected: hsl(224, 76%, 95%);
 }
+
 .s-root {
     background: var(--background-normal);
 }
 
-.s-table-header {
+.s-table-header, .s-table-row-header {
     background: var(--table-header-background-normal);
     padding: 2px 4px;
     color: var(--font-color-normal);
 }
 
-.s-table-header:active {
+.s-table-header:active, .s-table-row-header:active {
     background: var(--table-header-background-selected);
+}
+
+.s-table-row-header {
+    border-right: 1px #bfbfbf solid;
+    border-bottom: 1px #bfbfbf solid;
 }
 
 /*.s-table-header:hover {*/

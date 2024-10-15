@@ -1,9 +1,12 @@
 package de.krall.spreadsheets.ui
 
+import de.krall.spreadsheets.ui.event.KeyStroke
+import de.krall.spreadsheets.ui.event.deregisterKeyboardAction
 import de.krall.spreadsheets.value.Value
 import de.krall.spreadsheets.value.parser.ValueParser
 import fernice.reflare.classes
 import java.awt.Component
+import java.awt.event.HierarchyEvent
 import java.awt.event.MouseEvent
 import java.util.EventObject
 import javax.swing.AbstractCellEditor
@@ -15,8 +18,17 @@ class ValueCellEditor(val parser: ValueParser) : AbstractCellEditor(), TableCell
     private val field = ValueField(parser)
 
     init {
+        field.columns = 0
         field.classes.add("s-table-cell-editor")
-        field.addActionListener { fireEditingStopped() }
+        field.deregisterKeyboardAction(KeyStroke("ENTER"))
+        field.addHierarchyListener { event ->
+            if (event.id == HierarchyEvent.HIERARCHY_CHANGED
+                && (event.changeFlags.toInt() and HierarchyEvent.SHOWING_CHANGED) != 0
+                && field.isShowing
+            ) {
+                field.requestFocusInWindow()
+            }
+        }
     }
 
     override fun isCellEditable(event: EventObject?): Boolean {

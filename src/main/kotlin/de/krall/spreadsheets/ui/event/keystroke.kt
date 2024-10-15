@@ -4,8 +4,11 @@ import de.krall.spreadsheets.ui.OS
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import javax.swing.AbstractAction
+import javax.swing.ComponentInputMap
+import javax.swing.InputMap
 import javax.swing.JComponent
 import javax.swing.KeyStroke
+import kotlin.collections.addAll
 
 @JvmOverloads
 fun KeyStroke(
@@ -53,11 +56,44 @@ fun JComponent.deregisterKeyboardAction(
 ) {
     keyStroke ?: return
 
+    for (condition in Conditions.WHEN_FOCUSED..Conditions.WHEN_IN_FOCUSED_WINDOW) {
+        setInputMap(condition, RemoveAwareInputMap(this, getInputMap(condition)))
+    }
+
     unregisterKeyboardAction(keyStroke)
 }
 
 private class SimpleAction(private val actionListener: ActionListener) : AbstractAction() {
     override fun actionPerformed(e: ActionEvent) {
         actionListener.actionPerformed(e)
+    }
+}
+
+class RemoveAwareInputMap(component: JComponent, private val delegate: InputMap) : ComponentInputMap(component) {
+
+    private val removed = mutableSetOf<KeyStroke>()
+
+    override fun get(keyStroke: KeyStroke): Any? {
+        if (keyStroke in removed) return null
+
+        return delegate.get(keyStroke)
+    }
+
+    override fun put(keyStroke: KeyStroke, actionMapKey: Any?) {
+        removed.remove(keyStroke)
+
+        delegate.put(keyStroke, actionMapKey)
+    }
+
+    override fun remove(keyStroke: KeyStroke) {
+        removed.add(keyStroke)
+
+        delegate.remove(keyStroke)
+    }
+
+    override fun clear() {
+        removed.addAll(keys())
+
+        delegate.clear()
     }
 }
