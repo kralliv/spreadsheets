@@ -5,8 +5,10 @@ import de.krall.spreadsheets.ui.event.KeyStroke
 import de.krall.spreadsheets.ui.event.registerKeyboardAction
 import org.jdesktop.swingx.JXTable
 import java.awt.event.ActionListener
+import java.awt.event.KeyEvent
 import javax.swing.JScrollPane
 import javax.swing.JViewport
+import javax.swing.KeyStroke
 import javax.swing.SwingUtilities
 import javax.swing.plaf.TableUI
 import javax.swing.plaf.UIResource
@@ -117,5 +119,36 @@ open class STable : JXTable() {
                 }
             }
         }
+    }
+
+    override fun processKeyBinding(ks: KeyStroke, e: KeyEvent, condition: Int, pressed: Boolean): Boolean {
+        if (processKeyBindingDirectly(ks, e, condition, pressed)) {
+            return true
+        }
+
+        // "Why not start editing when pressing keys like shift?" said Swing
+        if (ks.keyCode == 0
+            || ks.keyCode == KeyEvent.VK_ESCAPE
+            || ks.keyCode == KeyEvent.VK_ENTER
+            || ks.keyCode == KeyEvent.VK_CAPS_LOCK
+        ) {
+            return false
+        }
+
+        return super.processKeyBinding(ks, e, condition, pressed)
+    }
+
+    private fun processKeyBindingDirectly(ks: KeyStroke, e: KeyEvent, condition: Int, pressed: Boolean): Boolean {
+        val map = getInputMap(condition)
+        val am = actionMap
+
+        if (map != null && am != null && isEnabled) {
+            val binding = map.get(ks)
+            val action = binding?.let { am.get(it) }
+            if (action != null) {
+                return SwingUtilities.notifyAction(action, ks, e, this, e.getModifiers())
+            }
+        }
+        return false
     }
 }

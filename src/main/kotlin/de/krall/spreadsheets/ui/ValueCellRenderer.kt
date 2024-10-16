@@ -1,7 +1,8 @@
 package de.krall.spreadsheets.ui
 
-import de.krall.spreadsheets.model.Spreadsheet
+import de.krall.spreadsheets.sheet.Spreadsheet
 import de.krall.spreadsheets.ui.components.SRendererLabel
+import de.krall.spreadsheets.ui.render.StringRenderable
 import de.krall.spreadsheets.ui.util.useGraphics2D
 import de.krall.spreadsheets.value.ComputationError
 import de.krall.spreadsheets.value.EvaluatedValue
@@ -15,7 +16,6 @@ import java.text.DecimalFormat
 import javax.swing.JTable
 import javax.swing.SwingConstants
 import javax.swing.table.TableCellRenderer
-import kotlin.math.log2
 
 class ValueCellRenderer(val spreadsheet: Spreadsheet) : TableCellRenderer {
 
@@ -39,9 +39,7 @@ class ValueCellRenderer(val spreadsheet: Spreadsheet) : TableCellRenderer {
         row: Int,
         column: Int,
     ): Component {
-        assert(column == 0) { "renderer should not be used for the first non-value column" }
-
-        val cell = spreadsheet[column, row]
+        val cell = spreadsheet[row, column]
 
         val evaluatedValue = cell.evaluatedValue
 
@@ -110,7 +108,7 @@ class ValueCellRenderer(val spreadsheet: Spreadsheet) : TableCellRenderer {
     }
 }
 
-private class ValueLabel : SRendererLabel() {
+private class ValueLabel : SRendererLabel(), StringRenderable {
 
     var isErroneous: Boolean = false
 
@@ -135,6 +133,8 @@ private class ValueLabel : SRendererLabel() {
 
         return path
     }
+
+    override fun renderToString(): String = text
 
     companion object {
         private const val CORNER_SIZE = 7

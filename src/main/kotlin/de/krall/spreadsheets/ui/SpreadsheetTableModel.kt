@@ -1,6 +1,6 @@
 package de.krall.spreadsheets.ui
 
-import de.krall.spreadsheets.model.Spreadsheet
+import de.krall.spreadsheets.sheet.Spreadsheet
 import de.krall.spreadsheets.value.Value
 import javax.swing.table.AbstractTableModel
 
@@ -26,11 +26,11 @@ class SpreadsheetTableModel(val spreadsheet: Spreadsheet) : AbstractTableModel()
     }
 
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any? {
-        return spreadsheet[columnIndex, rowIndex].value
+        return spreadsheet[rowIndex, columnIndex].value
     }
 
     override fun setValueAt(value: Any?, rowIndex: Int, columnIndex: Int) {
-        spreadsheet[columnIndex, rowIndex].value = value as Value?
+        spreadsheet[rowIndex, columnIndex].value = value as Value?
         fireTableCellUpdated(rowIndex, columnIndex)
     }
 

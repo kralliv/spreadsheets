@@ -1,4 +1,4 @@
-package de.krall.spreadsheets.model
+package de.krall.spreadsheets.sheet
 
 import de.krall.spreadsheets.grid.SparseGrid
 import de.krall.spreadsheets.util.empty
@@ -32,13 +32,26 @@ class SpreadsheetImpl(val parser: ValueParser) : Spreadsheet {
         listeners.forEach { it.cellChanged(cell) }
     }
 
-    override fun get(column: Int, row: Int): Cell {
-        return CellImpl(column, row)
+    override fun get(row: Int, column: Int): Cell {
+        return CellImpl(row, column)
+    }
+
+    override val rows: Sequence<Row>
+        get() = engine.rows().asSequence().map { row -> RowImpl(row) }
+
+    private inner class RowImpl(
+        override val row: Int,
+    ) : Row {
+
+        override fun get(column: Int): Cell = get(row, column)
+
+        override val cells: Sequence<Cell>
+            get() = engine.columns(row).asSequence().map { column -> get(row, column) }
     }
 
     private inner class CellImpl(
-        override val column: Int,
         override val row: Int,
+        override val column: Int,
     ) : Cell {
 
         override var value: Value?
@@ -413,6 +426,14 @@ private class SpreadsheetEngine(
 
     private fun checkNotClosed() {
         check(!closed.get()) { "spreadsheet engine has been closed" }
+    }
+
+    fun rows(): List<Int> = lock.read {
+        grid.entries.map { it.y }.toSortedSet().toList()
+    }
+
+    fun columns(row: Int): List<Int> = lock.read {
+        grid.entries.filter { it.y == row }.map { it.x }.toSortedSet().toList()
     }
 
     override fun close() {

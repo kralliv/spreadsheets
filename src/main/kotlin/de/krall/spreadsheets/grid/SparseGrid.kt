@@ -12,9 +12,9 @@ interface SparseGrid<T> {
     operator fun set(point: Point, value: T?) = set(point.x, point.y, value)
     operator fun set(x: Int, y: Int, value: T?)
 
-    fun entries(area: Area): Collection<Entry<T>>
+    fun entries(area: Area): Sequence<Entry<T>>
 
-    val entries: Collection<Entry<T>>
+    val entries: Sequence<Entry<T>>
 
     interface Entry<T> {
         val x: Int
@@ -27,30 +27,46 @@ interface SparseGrid<T> {
 
 private class MapBaseSparseGrid<T> : SparseGrid<T> {
 
-    private val map = mutableMapOf<Long, EntryImpl<T>>()
+    private val map = mutableMapOf<Long, T>()
 
     override fun get(x: Int, y: Int): T? {
-        return map[pack(x, y)]?.value
+        return map[pack(x, y)]
     }
 
     override fun set(x: Int, y: Int, value: T?) {
         if (value != null) {
-            map[pack(x, y)] = EntryImpl(x, y, value)
+            map[pack(x, y)] = value
         } else {
             map.remove(pack(x, y))
         }
     }
 
-    override fun entries(area: Area): Collection<SparseGrid.Entry<T>> {
+    override fun entries(area: Area): Sequence<SparseGrid.Entry<T>> {
         if (area is FiniteArea && area.size < map.size) {
-            area.points.map { get(it.x, it.y) }
+            return sequence {
+                for (point in area.points) {
+                    val value = get(point.x, point.y) ?: continue
+                    yield(EntryImpl(point.x, point.y, value))
+                }
+            }
         }
 
-        return map.values.filter { area.contains(it.x, it.y) }
+        return sequence {
+            for ((location, value) in map) {
+                val x = (location and 0xFFFFFFFF).toInt()
+                val y = (location ushr 32).toInt()
+                if (!area.contains(x, y)) continue
+                yield(EntryImpl(x, y, value))
+            }
+        }
     }
 
-    override val entries: Collection<SparseGrid.Entry<T>>
-        get() = map.values
+    override val entries: Sequence<SparseGrid.Entry<T>>
+        get() = map.asSequence().map { (location, value) ->
+            val x = (location and 0xFFFFFFFF).toInt()
+            val y = (location ushr 32).toInt()
+            EntryImpl(x, y, value)
+        }
 
     private fun pack(x: Int, y: Int): Long {
         return x.toLong() or (y.toLong() shl 32)
