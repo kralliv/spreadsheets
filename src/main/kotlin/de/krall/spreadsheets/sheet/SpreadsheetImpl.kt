@@ -13,6 +13,7 @@ import de.krall.spreadsheets.value.Value
 import de.krall.spreadsheets.value.formula.Formula
 import de.krall.spreadsheets.value.formula.ReferenceResolver
 import de.krall.spreadsheets.value.parser.ValueParser
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.Closeable
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.LinkedBlockingDeque
@@ -26,10 +27,14 @@ class SpreadsheetImpl(val parser: ValueParser) : Spreadsheet {
 
     private val listeners = CopyOnWriteArrayList<SpreadsheetListener>()
 
-    private val engine = SpreadsheetEngine(parser, lazyEvaluation = true) { column, row, _ ->
+    private val engine = SpreadsheetEngine(parser, lazyEvaluation = true) { column, row, _, isNonStructural ->
         val cell = CellImpl(column, row)
 
-        listeners.forEach { it.cellChanged(cell) }
+        if (isNonStructural) {
+            listeners.forEach { it.cellUpdated(cell) }
+        } else {
+            listeners.forEach { it.cellChanged(cell) }
+        }
     }
 
     override fun get(row: Int, column: Int): Cell {
@@ -173,7 +178,7 @@ private class SpreadsheetEngine(
         }
     }
 
-    private class Notification(val column: Int, val row: Int, val attributes: CellAttributes)
+    private class Notification(val column: Int, val row: Int, val attributes: CellAttributes, val isNonStructural: Boolean)
 
     private val closed = AtomicBoolean(false)
     private val lock = ReentrantReadWriteLock()
@@ -191,7 +196,7 @@ private class SpreadsheetEngine(
                     evaluateNode(node)
                 }
             } catch (t: Throwable) {
-                t.printStackTrace() // TODO
+                LOG.error(t) { "evaluation resulted in exception" }
             }
         }
     }
@@ -202,9 +207,9 @@ private class SpreadsheetEngine(
             try {
                 val notification = notifyQueue.take()
 
-                changeListener.cellChanged(notification.column, notification.row, notification.attributes)
+                changeListener.cellChanged(notification.column, notification.row, notification.attributes, notification.isNonStructural)
             } catch (t: Throwable) {
-                t.printStackTrace() // TODO
+                LOG.error(t) { "notification resulted in exception" }
             }
         }
     }
@@ -296,7 +301,7 @@ private class SpreadsheetEngine(
                 requestEvaluation(node)
             }
         } else {
-            notifyNodeChanged(node)
+            notifyNodeChanged(node, nonStructural = true)
         }
     }
 
@@ -372,7 +377,7 @@ private class SpreadsheetEngine(
         val evaluatedValue = computedValue?.toEvaluatedValue()
         node.update(node.attributes.copy(evaluatedValue = evaluatedValue))
 
-        notifyNodeChanged(node)
+        notifyNodeChanged(node, nonStructural = true)
 
         return evaluatedValue
     }
@@ -416,12 +421,8 @@ private class SpreadsheetEngine(
         }
     }
 
-    private fun notifyNodeChanged(node: Node) {
-        try {
-            changeListener.cellChanged(node.column, node.row, node.attributes)
-        } catch (t: Throwable) {
-            t.printStackTrace() // TODO
-        }
+    private fun notifyNodeChanged(node: Node, nonStructural: Boolean = false) {
+        notifyQueue.add(Notification(node.column, node.row, node.attributes, nonStructural))
     }
 
     private fun checkNotClosed() {
@@ -441,10 +442,14 @@ private class SpreadsheetEngine(
         evaluationThread.interrupt()
         notifyThread.interrupt()
     }
+
+    companion object {
+        private val LOG = KotlinLogging.logger { }
+    }
 }
 
 private fun interface ChangeListener {
-    fun cellChanged(column: Int, row: Int, attributes: CellAttributes)
+    fun cellChanged(column: Int, row: Int, attributes: CellAttributes, isNonStructural: Boolean)
 }
 
 private data class CellAttributes(

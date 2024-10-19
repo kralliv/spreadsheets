@@ -8,6 +8,7 @@ import java.io.DataInput
 import java.io.DataInputStream
 import java.io.DataOutput
 import java.io.DataOutputStream
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -22,7 +23,7 @@ private object ValueTypes {
 }
 
 fun Spreadsheet.writeTo(outputStream: OutputStream) {
-    val output = DataOutputStream(outputStream)
+    val output = DataOutputStream(outputStream.buffered())
 
     output.writeByte(VERSION)
     output.write(MAGIC_NUMBER)
@@ -33,6 +34,8 @@ fun Spreadsheet.writeTo(outputStream: OutputStream) {
     for (row in rows) {
         row.writeRow(output)
     }
+
+    output.flush()
 }
 
 private fun Row.writeRow(output: DataOutput) {
@@ -69,12 +72,12 @@ private fun Cell.writeCell(output: DataOutput) {
 }
 
 fun Spreadsheet.readFrom(inputStream: InputStream) {
-    val input = DataInputStream(inputStream)
+    val input = DataInputStream(inputStream.buffered())
 
     val version = input.read()
     val magicNumber = input.readNBytes(4)
-    check(magicNumber.contentEquals(MAGIC_NUMBER)) { "invalid format" }
-    check(version == VERSION) { "unsupported version: $version" }
+    if (!magicNumber.contentEquals(MAGIC_NUMBER)) throw IOException("invalid format")
+    if (version != VERSION) throw IOException("unsupported version: $version")
 
     val rowCount = input.readInt()
     for (rowIndex in 0..<rowCount) {
@@ -101,7 +104,7 @@ private fun Spreadsheet.readCell(input: DataInput, row: Int) {
         ValueTypes.TEXT -> Value.Text(input.readUTF())
         ValueTypes.NUMBER -> Value.Number(input.readDouble())
         ValueTypes.FORMULA -> Value.Formula(input.readUTF())
-        else -> error("unsupported value type: $valueType")
+        else -> throw IOException("unsupported value type: $valueType")
     }
 
     val cell = get(row, column)

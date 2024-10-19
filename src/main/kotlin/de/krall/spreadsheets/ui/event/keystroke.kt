@@ -27,7 +27,7 @@ fun KeyStroke(
     val descriptor = platformDescriptor ?: default ?: return null
     if (descriptor == "none") return null
     val normalizedKeystrokeDescriptor = when {
-        OS.isMac -> descriptor.replace("command", "meta").replace("option", "alt")
+        OS.isMac -> descriptor.replace("command", "meta").replace("cmd", "meta").replace("option", "alt")
         else -> descriptor
     }
     return KeyStroke.getKeyStroke(normalizedKeystrokeDescriptor) ?: error("invalid keystroke: $descriptor")

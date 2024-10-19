@@ -4,7 +4,6 @@ import de.krall.spreadsheets.ui.util.drawAALine
 import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.reflare.element.element
 import org.fernice.reflare.ui.FlareTableHeaderUI
-import org.fernice.reflare.ui.FlareUI
 import java.awt.BasicStroke
 import java.awt.Component
 import java.awt.Graphics

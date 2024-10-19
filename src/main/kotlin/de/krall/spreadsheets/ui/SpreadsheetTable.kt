@@ -36,6 +36,10 @@ class SpreadsheetTable(val spreadsheet: Spreadsheet, val parser: ValueParser) : 
             override fun cellChanged(cell: Cell) {
                 invokeLater { repaint() }
             }
+
+            override fun cellUpdated(cell: Cell) {
+                invokeLater { repaint() }
+            }
         })
 
         tableHeader?.defaultRenderer = HeaderCellRenderer()
@@ -78,6 +82,10 @@ class SpreadsheetTable(val spreadsheet: Spreadsheet, val parser: ValueParser) : 
 
                     val value = cell.value
                     val displayableValue = renderer.renderToString(this@SpreadsheetTable, value, false, false, row, column)
+
+                    if (action == MOVE) {
+                        cell.value = null
+                    }
 
                     TransferableCell(
                         value,

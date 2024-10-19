@@ -1,11 +1,10 @@
 package de.krall.spreadsheets.ui
 
 import de.krall.spreadsheets.ui.components.SFormattedTextField
-import de.krall.spreadsheets.ui.event.KeyStroke
-import de.krall.spreadsheets.ui.event.registerKeyboardAction
 import de.krall.spreadsheets.ui.highlight.DiagnosticHighlighter
 import de.krall.spreadsheets.value.Value
 import de.krall.spreadsheets.value.parser.ValueParser
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.event.MouseEvent
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
@@ -18,14 +17,13 @@ class ValueField(val parser: ValueParser) : SFormattedTextField() {
     private val diagnosticHighlighter = DiagnosticHighlighter()
 
     init {
-        columns = 20
-        formatterFactory = DefaultFormatterFactory(FormatterImpl())
+        formatterFactory = DefaultFormatterFactory(ValueFormatter())
 
         val toolTipManager = ToolTipManager.sharedInstance()
         toolTipManager.registerComponent(this)
 
         installHighlighting()
-        installActions()
+        installKeyboardActions()
     }
 
     private fun installHighlighting() {
@@ -39,18 +37,12 @@ class ValueField(val parser: ValueParser) : SFormattedTextField() {
         }
     }
 
-    private fun installActions() {
+    private fun installKeyboardActions() {
 //        registerKeyboardAction(KeyStroke("ENTER")) {
 //            commitEdit()
 //
 //            fireActionPerformed()
 //        }
-        registerKeyboardAction(KeyStroke("UP")) {
-            caretPosition = 0
-        }
-        registerKeyboardAction(KeyStroke("DOWN")) {
-            caretPosition = text.length
-        }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -71,7 +63,7 @@ class ValueField(val parser: ValueParser) : SFormattedTextField() {
         return super.getValue() as Value?
     }
 
-    private inner class FormatterImpl : AbstractFormatter() {
+    private inner class ValueFormatter : AbstractFormatter() {
 
         private val numberFormat = DecimalFormat().apply {
             decimalFormatSymbols = DecimalFormatSymbols.getInstance(Locale.ROOT)
@@ -85,7 +77,7 @@ class ValueField(val parser: ValueParser) : SFormattedTextField() {
             return try {
                 parser.parseValue(text)
             } catch (exception: Exception) {
-                exception.printStackTrace() // TODO
+                LOG.error(exception) { "failed to convert text to value: '$text'" }
                 null
             }
         }
@@ -109,5 +101,9 @@ class ValueField(val parser: ValueParser) : SFormattedTextField() {
         }
 
         return null
+    }
+
+    companion object {
+        private val LOG = KotlinLogging.logger { }
     }
 }

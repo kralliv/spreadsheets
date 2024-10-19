@@ -33,4 +33,5 @@ interface Cell {
 
 interface SpreadsheetListener {
     fun cellChanged(cell: Cell)
+    fun cellUpdated(cell: Cell)
 }

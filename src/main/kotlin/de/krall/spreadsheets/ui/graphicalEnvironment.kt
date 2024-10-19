@@ -3,13 +3,7 @@ package de.krall.spreadsheets.ui
 import fernice.reflare.CSSEngine
 import fernice.reflare.FlareLookAndFeel
 import fernice.reflare.Stylesheet
-import java.awt.event.InputEvent
-import java.awt.event.KeyEvent
-import javax.swing.InputMap
-import javax.swing.KeyStroke
 import javax.swing.ToolTipManager
-import javax.swing.UIManager
-import javax.swing.text.DefaultEditorKit
 
 object OS {
     private val operatingSystem = (System.getProperty("spreadsheets.os") ?: System.getProperty("os.name")).lowercase()
@@ -25,6 +19,10 @@ fun initializeGraphicalEnvironment() {
 }
 
 private fun installLookAndFeel() {
+    if (OS.isMac) {
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
+    }
+
     FlareLookAndFeel.install()
 
     CSSEngine.addStylesheet(Stylesheet.fromResource("/spreadsheets/css/main.css"))

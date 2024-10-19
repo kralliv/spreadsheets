@@ -102,6 +102,14 @@ open class STable : JXTable() {
     private fun installActions() {
         registerKeyboardAction(KeyStroke("ENTER"), Conditions.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, editAction("selectNextRowCell"))
         registerKeyboardAction(KeyStroke("shift ENTER"), Conditions.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, editAction("selectPreviousRowCell"))
+        registerKeyboardAction(KeyStroke("BACK_SPACE"), Conditions.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT) {
+            val model = model
+            selectedRows.forEach { row ->
+                selectedColumns.forEach { column ->
+                    model.setValueAt(null, row, column)
+                }
+            }
+        }
     }
 
     private fun editAction(successorAction: String): ActionListener {
@@ -127,10 +135,12 @@ open class STable : JXTable() {
         }
 
         // "Why not start editing when pressing keys like shift?" said Swing
-        if (ks.keyCode == 0
-            || ks.keyCode == KeyEvent.VK_ESCAPE
-            || ks.keyCode == KeyEvent.VK_ENTER
-            || ks.keyCode == KeyEvent.VK_CAPS_LOCK
+        if (e.id == KeyEvent.KEY_PRESSED
+            && (ks.keyCode == 0
+                    || ks.keyCode == KeyEvent.VK_ESCAPE
+                    || ks.keyCode == KeyEvent.VK_ENTER
+                    || ks.keyCode == KeyEvent.VK_CAPS_LOCK
+                    || ks.keyCode == KeyEvent.VK_BACK_SPACE)
         ) {
             return false
         }

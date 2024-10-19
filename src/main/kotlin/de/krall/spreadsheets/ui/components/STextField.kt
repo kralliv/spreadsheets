@@ -2,9 +2,9 @@ package de.krall.spreadsheets.ui.components
 
 import de.krall.spreadsheets.ui.event.add
 import de.krall.spreadsheets.ui.event.remove
-import fernice.reflare.light.FFormattedTextField
+import fernice.reflare.light.FTextField
 
-open class SFormattedTextField : FFormattedTextField(), STextComponent {
+open class STextField : FTextField(), STextComponent {
 
     protected val helper = TextComponentHelper(this)
 
