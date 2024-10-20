@@ -42,15 +42,15 @@ private val FUNCTION_CALL_RECOVERY_SET = TokenTypeSet.of(TokenType.COMMA, TokenT
 
 class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractParser(tokens, context) {
 
-    fun parseValue(): SlStatement {
+    fun parseStatement(): SlStatement {
         return when {
-            at(TokenType.EQ) -> parseFormulaValue()
-            at(TokenType.NUMBER) && lookahead(1) == null -> parseNumberValue()
-            else -> parseTextValue()
+            at(TokenType.EQ) -> parseFormulaStatement()
+            isAtNumberStatement() -> parseNumberStatement()
+            else -> parseTextStatement()
         }
     }
 
-    private fun parseFormulaValue(): SlFormulaStatement {
+    private fun parseFormulaStatement(): SlFormulaStatement {
         assert(at(TokenType.EQ))
 
         val span = span()
@@ -60,24 +60,50 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
         val expression = if (expect(EXPRESSION_START, Diagnostics.EXPECTED_EXPRESSION)) {
             parseExpression()
         } else {
-            SlInvalid()
+            SlInvalid(span().finish())
         }
 
         return SlFormulaStatement(expression, span.finish())
     }
 
-    private fun parseNumberValue(): SlNumberStatement {
-        assert(at(TokenType.NUMBER))
+    private fun isAtNumberStatement(): Boolean {
+        if (at(TokenType.NUMBER) && lookahead(1) == null) return true
+        if (at(TokenType.MINUS) || at(TokenType.PLUS)) {
+            return lookahead(1)?.type == TokenType.NUMBER && lookahead(2) == null
+        }
+        return false
+    }
+
+    private fun parseNumberStatement(): SlNumberStatement {
+        assert(isAtNumberStatement())
 
         val span = span()
 
-        val number = token.number
+        val negative = when {
+            at(TokenType.MINUS) -> {
+                advance()
+                true
+            }
+
+            at(TokenType.PLUS) -> {
+                advance()
+                false
+            }
+
+            else -> false
+        }
+
+        var number = token.number
         advance() // NUMBER
+
+        if (negative) {
+            number = -number
+        }
 
         return SlNumberStatement(number, span.finish())
     }
 
-    private fun parseTextValue(): SlTextStatement {
+    private fun parseTextStatement(): SlTextStatement {
         val span = span()
 
         while (!eof()) {
@@ -93,7 +119,7 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
         return if (expect(EXPRESSION_START, Diagnostics.EXPECTED_EXPRESSION)) {
             parseExpression()
         } else {
-            SlInvalid()
+            SlInvalid(span().finish())
         }
     }
 
@@ -165,7 +191,7 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
         return when {
             at(TokenType.LPAREN) -> parseParenthesizedExpression()
             isAtFunctionCallExpression() -> parseFunctionCallExpression()
-            at(TokenType.IDENTIFIER) -> parseReferenceExpression()
+            isAtReferenceExpression() -> parseReferenceExpression()
             at(LITERAL_EXPRESSION_START) -> parseLiteralExpression()
             else -> error("preconditions violated")
         }

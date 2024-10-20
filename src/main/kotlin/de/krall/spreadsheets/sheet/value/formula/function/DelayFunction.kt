@@ -14,4 +14,6 @@ object DelayFunction : AbstractFunction() {
 
         return ComputedValue.Blank
     }
+
+    override fun toString(): String = "DELAY"
 }

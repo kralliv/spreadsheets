@@ -1,0 +1,4 @@
+FORMULA_STATEMENT(0-2)
+  REFERENCE(1-2) 'a' <reference> #unresolved
+
+ERROR INVALID_REFERENCE (1-2)

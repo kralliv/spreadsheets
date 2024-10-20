@@ -1,17 +1,25 @@
-FORMULA_STATEMENT(0-27) 
-  BINARY_EXPRESSION(1-27) MINUS
-    BINARY_EXPRESSION(1-19) PLUS
-      LITERAL(1-3) 1
-      BINARY_EXPRESSION(5-19) TIMES
-        PREFIX_EXPRESSION(5-8) MINUS
-          LITERAL(6-8) 1
-        PREFIX_EXPRESSION(10-19) PLUS
-          PARENTHESIZED_EXPRESSION(11-19) 
-            BINARY_EXPRESSION(12-17) PLUS
-              LITERAL(12-14) 1
-              LITERAL(16-17) 1
-    BINARY_EXPRESSION(21-27) DIVIDE
-      PREFIX_EXPRESSION(21-24) MINUS
-        LITERAL(22-24) 2
-      LITERAL(26-27) 2
+FORMULA_STATEMENT(0-45)
+  BINARY_EXPRESSION(1-45) MINUS <number>
+    BINARY_EXPRESSION(1-43) MODULO <number>
+      PARENTHESIZED_EXPRESSION(1-30) <number>
+        BINARY_EXPRESSION(2-28) MINUS <number>
+          BINARY_EXPRESSION(2-20) PLUS <number>
+            LITERAL(2-4) '1.0' <number>
+            BINARY_EXPRESSION(6-20) TIMES <number>
+              PREFIX_EXPRESSION(6-9) MINUS <number>
+                LITERAL(7-9) '1.0' <number>
+              PREFIX_EXPRESSION(11-20) PLUS <number>
+                PARENTHESIZED_EXPRESSION(12-20) <number>
+                  BINARY_EXPRESSION(13-18) PLUS <number>
+                    LITERAL(13-15) '1.0' <number>
+                    LITERAL(17-18) '1.0' <number>
+          BINARY_EXPRESSION(22-28) DIVIDE <number>
+            PREFIX_EXPRESSION(22-25) MINUS <number>
+              LITERAL(23-25) '2.0' <number>
+            LITERAL(27-28) '2.0' <number>
+      FUNCTION_CALL(32-43) 'sum' <number> #sum(any...): number
+        BINARY_EXPRESSION(36-41) TIMES <number>
+          LITERAL(36-38) '1.0' <number>
+          LITERAL(40-41) '2.0' <number>
+    LITERAL(44-45) '1.0' <number>
 

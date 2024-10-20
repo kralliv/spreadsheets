@@ -37,7 +37,7 @@ data class Rectangle(
 
     init {
         require(width > 0) { "width must be positive" }
-        require(width > 0) { "height must be positive" }
+        require(height > 0) { "height must be positive" }
     }
 
     override val size: Long

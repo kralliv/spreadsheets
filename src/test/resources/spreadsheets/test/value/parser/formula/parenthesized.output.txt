@@ -1,0 +1,13 @@
+FORMULA_STATEMENT(0-21)
+  PARENTHESIZED_EXPRESSION(1-21) <number>
+    BINARY_EXPRESSION(2-20) PLUS <number>
+      PARENTHESIZED_EXPRESSION(2-10) <number>
+        BINARY_EXPRESSION(3-8) PLUS <number>
+          PARENTHESIZED_EXPRESSION(3-6) <number>
+            LITERAL(4-5) '1.0' <number>
+          LITERAL(7-8) '1.0' <number>
+      PARENTHESIZED_EXPRESSION(11-20) <number>
+        PARENTHESIZED_EXPRESSION(13-19) <number>
+          PARENTHESIZED_EXPRESSION(14-17) <number>
+            LITERAL(15-16) '2.0' <number>
+

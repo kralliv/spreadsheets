@@ -1,10 +1,16 @@
-FORMULA_STATEMENT(0-12) 
-  BINARY_EXPRESSION(1-12) MODULO
-    BINARY_EXPRESSION(1-5) MODULO
-      LITERAL(1-2) 1
-      LITERAL(3-5) 1
-    PARENTHESIZED_EXPRESSION(7-12) 
-      BINARY_EXPRESSION(8-11) MODULO
-        LITERAL(8-9) 1
-        LITERAL(10-11) 1
+FORMULA_STATEMENT(0-36)
+  BINARY_EXPRESSION(1-36) MODULO <number>
+    BINARY_EXPRESSION(1-14) MODULO <number>
+      BINARY_EXPRESSION(1-5) MODULO <number>
+        LITERAL(1-2) '1.0' <number>
+        LITERAL(3-5) '1.0' <number>
+      PARENTHESIZED_EXPRESSION(7-14) <number>
+        BINARY_EXPRESSION(8-12) MODULO <number>
+          REFERENCE(8-10) 'a1' <reference> #A1
+          LITERAL(11-12) '1.0' <number>
+    FUNCTION_CALL(16-36) 'modulo' <number> #modulo(text | number | reference, text | number | reference): number
+      BINARY_EXPRESSION(23-30) MODULO <number>
+        LITERAL(23-27) '2.2' <number>
+        LITERAL(29-30) '5.0' <number>
+      LITERAL(32-35) '0.1' <number>
 

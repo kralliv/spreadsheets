@@ -17,7 +17,7 @@ class ParseTest {
 
     @TestFactory
     fun createTests(): Iterable<DynamicNode> {
-        val resources = TestCaseResource.resolve("spreadsheets/test/language/parser", "txt")
+        val resources = TestCaseResource.resolve("spreadsheets/test/value/parser", "txt")
 
         return resources.map { createTestCase(it) }
     }
@@ -41,16 +41,12 @@ class ParseTest {
         return dump(statement, diagnostics)
     }
 
-    private fun parse(text: String): Pair<SlStatement, List<Diagnostic>> {
-        val context = ProcessingContext()
+    private fun parse(input: String): Pair<SlStatement, List<Diagnostic>> {
+        val parser = ValueParser()
 
-        val input = Segment(text)
-        val lexer = SlLexer(input)
-        val parser = SlParser(lexer, context)
+        val (statement, diagnostics) = parser.parseParsedValueTree(input)
 
-        val statement = parser.parseValue()
-
-        return statement to context.diagnostics
+        return statement to diagnostics
     }
 
     private fun dump(statement: SlStatement, diagnostics: List<Diagnostic>): String {

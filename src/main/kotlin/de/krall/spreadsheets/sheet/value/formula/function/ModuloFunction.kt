@@ -9,4 +9,6 @@ object ModuloFunction : BinaryOperatorFunction() {
         if (right == 0.0) return ComputedValue.Error(ComputationError.DivisionByZero)
         return ComputedValue.Number(left % right)
     }
+
+    override fun toString(): String = "MODULO"
 }

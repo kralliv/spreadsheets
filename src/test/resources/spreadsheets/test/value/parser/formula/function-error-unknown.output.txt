@@ -1,0 +1,6 @@
+FORMULA_STATEMENT(0-15)
+  FUNCTION_CALL(1-15) 'unknown' <error> #unresolved
+    REFERENCE(9-11) 'a1' <unresolved> #A1
+    LITERAL(13-14) '1.0' <unresolved>
+
+ERROR UNKNOWN_FUNCTION (1-15)

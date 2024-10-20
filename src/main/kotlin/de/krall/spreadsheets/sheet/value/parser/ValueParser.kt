@@ -8,6 +8,7 @@ import de.krall.spreadsheets.sheet.value.parser.analysis.TypeResolver
 import de.krall.spreadsheets.sheet.value.parser.builder.FormulaBuilder
 import de.krall.spreadsheets.sheet.value.parser.builder.ParsedValueBuilder
 import de.krall.spreadsheets.sheet.value.parser.diagnotic.Diagnostic
+import de.krall.spreadsheets.sheet.value.parser.diagnotic.Severity
 import de.krall.spreadsheets.sheet.value.parser.tree.SlElement
 import de.krall.spreadsheets.sheet.value.parser.tree.SlExpression
 import de.krall.spreadsheets.sheet.value.parser.tree.SlStatement
@@ -25,22 +26,24 @@ class ValueParser {
     }
 
     fun parseParsedValue(value: String): ParsedValue {
-        val (statement, _) = parseParsedValueTree(value)
+        val (statement, diagnostics) = parseParsedValueTree(value)
 
-        return when (statement) {
-            null -> ParsedValue.BadFormula
+        return when {
+            diagnostics.hasAtLeastErrors() -> ParsedValue.BadFormula
             else -> ParsedValueBuilder.build(statement)
         }
     }
 
     fun parseParsedValueTree(value: String): ParseResult<SlStatement> {
-        return process(value) { it.parseValue() }
+        return process(value) { it.parseStatement() }
     }
 
     fun parseFormula(value: String): Formula? {
-        val (expression, _) = parseFormulaTree(value)
+        val (expression, diagnostics) = parseFormulaTree(value)
 
-        return expression?.let { FormulaBuilder.build(it) }
+        if (diagnostics.hasAtLeastErrors()) return null
+
+        return expression.let { FormulaBuilder.build(it) }
     }
 
     fun parseFormulaTree(value: String): ParseResult<SlExpression> {
@@ -53,16 +56,6 @@ class ValueParser {
         var element = parse(value, context, parse)
 
         analyse(element, context)
-
-        if (context.hasErrors()) {
-            return ParseResult(result = null, context.diagnostics)
-        }
-
-        element = transform(element, context)
-
-        if (context.hasErrors()) {
-            return ParseResult(result = null, context.diagnostics)
-        }
 
         return ParseResult(element, context.diagnostics)
     }
@@ -86,12 +79,12 @@ class ValueParser {
         }
     }
 
-    private fun <T : SlElement> transform(element: T, context: ProcessingContext): T {
-        return element
+    private fun List<Diagnostic>.hasAtLeastErrors(): Boolean {
+        return any { it.severity >= Severity.ERROR }
     }
 }
 
-data class ParseResult<T>(
-    val result: T?,
+data class ParseResult<T : SlElement>(
+    val result: T,
     val diagnostics: List<Diagnostic>,
 )

@@ -6,6 +6,7 @@ import de.krall.spreadsheets.sheet.value.formula.function.DivideFunction
 import de.krall.spreadsheets.sheet.value.formula.function.MinusFunction
 import de.krall.spreadsheets.sheet.value.formula.function.ModuloFunction
 import de.krall.spreadsheets.sheet.value.formula.function.MultiplyFunction
+import de.krall.spreadsheets.sheet.value.formula.function.NegateFunction
 import de.krall.spreadsheets.sheet.value.formula.function.SumFunction
 
 object BuiltIns {
@@ -27,7 +28,7 @@ object BuiltIns {
         FunctionDefinition("multiply", fixed(AnySingular, AnySingular), Number, MultiplyFunction),
         FunctionDefinition("divide", fixed(AnySingular, AnySingular), Number, DivideFunction),
         FunctionDefinition("modulo", fixed(AnySingular, AnySingular), Number, ModuloFunction),
-        FunctionDefinition("negate", fixed(AnySingular, AnySingular), Number, ModuloFunction),
+        FunctionDefinition("negate", fixed(AnySingular, AnySingular), Number, NegateFunction),
         FunctionDefinition("delay", fixed(Number), Nothing, DelayFunction),
     )
 }

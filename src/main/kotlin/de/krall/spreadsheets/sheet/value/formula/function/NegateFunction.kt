@@ -7,4 +7,6 @@ object NegateFunction : UnaryOperatorFunction() {
     override fun compute(value: Double): ComputedValue {
         return ComputedValue.Number(-value)
     }
+
+    override fun toString(): String = "NEGATE"
 }

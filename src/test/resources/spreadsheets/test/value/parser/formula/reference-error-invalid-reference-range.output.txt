@@ -1,0 +1,9 @@
+FORMULA_STATEMENT(0-19)
+  FUNCTION_CALL(1-19) 'sum' <number> #sum(any...): number
+    INVALID(5-8) <error>
+    REFERENCE(10-13) 'a' '1' <reference> #unresolved
+    REFERENCE(15-18) '2' 'b' <reference> #unresolved
+
+ERROR EXPECTED_REFERENCE (8-8)
+ERROR INVALID_REFERENCE_RANGE (10-13)
+ERROR INVALID_REFERENCE_RANGE (15-18)

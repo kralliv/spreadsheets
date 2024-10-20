@@ -1,2 +1,2 @@
-TEXT_STATEMENT(0-7) 'foobar'
+TEXT_STATEMENT(0-7) 'foo bar'
 

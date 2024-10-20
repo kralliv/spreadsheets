@@ -1,0 +1,4 @@
+FORMULA_STATEMENT(0-6)
+  FUNCTION_CALL(1-6) 'add' <number> #add(text | number | reference, text | number | reference): number
+
+ERROR MISSING_ARGUMENT (1-6)

@@ -1,0 +1,7 @@
+FORMULA_STATEMENT(0-12)
+  FUNCTION_CALL(1-12) 'add' <number> #add(text | number | reference, text | number | reference): number
+    LITERAL(5-6) '1.0' <number>
+    LITERAL(8-9) '1.0' <number>
+    LITERAL(10-11) '1.0' <number>
+
+ERROR TOO_MANY_ARGUMENTS (10-11)

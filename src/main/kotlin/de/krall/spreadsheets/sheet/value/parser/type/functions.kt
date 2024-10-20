@@ -17,7 +17,7 @@ class FunctionDefinition(
     val function: Function,
 ) {
 
-    override fun toString(): String = "$name($parameterTypes):$returnType"
+    override fun toString(): String = "$name($parameterTypes): $returnType"
 }
 
 data class ParameterTypes(

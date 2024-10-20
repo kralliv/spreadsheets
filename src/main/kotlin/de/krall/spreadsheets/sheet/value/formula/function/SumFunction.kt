@@ -17,4 +17,6 @@ object SumFunction : AbstractFunction() {
         }
         return ComputedValue.Number(sum)
     }
+
+    override fun toString(): String = "SUM"
 }

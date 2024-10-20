@@ -52,7 +52,7 @@ object TypeResolver : TreeAnalyser {
             val type = when (literal.value) {
                 is String -> BuiltIns.Text
                 is Double -> BuiltIns.Number
-                else -> error("unsupported literal value type ${literal.value}")
+                else -> BuiltIns.Error
             }
             literal.typeOrNull = type
             return type
@@ -139,6 +139,8 @@ object TypeResolver : TreeAnalyser {
 
             if (functionCandidates.isEmpty()) {
                 context.report(Diagnostics.UNKNOWN_FUNCTION.on(functionCall, functionCall.name))
+
+                functionCall.typeOrNull = BuiltIns.Error
                 return BuiltIns.Error
             }
 
@@ -149,6 +151,9 @@ object TypeResolver : TreeAnalyser {
             if (function == null) {
                 val functionCandidate = functionCandidates.maxBy { it.parameterTypes.score(argumentTypes) }
                 reportArgumentMismatches(functionCall, argumentTypes, functionCandidate)
+
+                functionCall.functionOrNull = functionCandidate
+                functionCall.typeOrNull = functionCandidate.returnType
                 return BuiltIns.Error
             }
 

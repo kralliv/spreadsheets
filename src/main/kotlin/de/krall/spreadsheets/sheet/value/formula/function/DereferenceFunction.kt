@@ -13,4 +13,6 @@ object DereferenceFunction : AbstractFunction() {
 
         return arguments[0].dereference(references)
     }
+
+    override fun toString(): String = "DEREF"
 }
