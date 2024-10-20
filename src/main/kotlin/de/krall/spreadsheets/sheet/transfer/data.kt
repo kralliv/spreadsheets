@@ -1,6 +1,6 @@
 package de.krall.spreadsheets.sheet.transfer
 
-import de.krall.spreadsheets.value.Value
+import de.krall.spreadsheets.sheet.value.Value
 
 class TransferableSpreadsheet private constructor(
     val columnCount: Int,

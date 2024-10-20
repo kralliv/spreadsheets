@@ -3,7 +3,7 @@ package de.krall.spreadsheets.sheet.io
 import de.krall.spreadsheets.sheet.Cell
 import de.krall.spreadsheets.sheet.Row
 import de.krall.spreadsheets.sheet.Spreadsheet
-import de.krall.spreadsheets.value.Value
+import de.krall.spreadsheets.sheet.value.Value
 import java.io.DataInput
 import java.io.DataInputStream
 import java.io.DataOutput

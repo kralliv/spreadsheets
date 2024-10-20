@@ -1,7 +1,7 @@
 package de.krall.spreadsheets.sheet.transfer
 
 import de.krall.spreadsheets.util.parseCsv
-import de.krall.spreadsheets.value.Value
+import de.krall.spreadsheets.sheet.value.Value
 
 fun TransferableSpreadsheet.toCsv(): String {
     return buildString {

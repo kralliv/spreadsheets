@@ -9,12 +9,12 @@ import de.krall.spreadsheets.sheet.transfer.TransferableCell
 import de.krall.spreadsheets.sheet.transfer.TransferableSpreadsheet
 import de.krall.spreadsheets.sheet.transfer.fromCsv
 import de.krall.spreadsheets.ui.render.renderToString
-import de.krall.spreadsheets.ui.table.HeaderCellRenderer
-import de.krall.spreadsheets.ui.table.RowHeaderCellRenderer
-import de.krall.spreadsheets.ui.table.STable
+import de.krall.spreadsheets.ui.components.table.HeaderCellRenderer
+import de.krall.spreadsheets.ui.components.table.RowHeaderCellRenderer
+import de.krall.spreadsheets.ui.components.table.STable
 import de.krall.spreadsheets.ui.util.invokeLater
-import de.krall.spreadsheets.value.Value
-import de.krall.spreadsheets.value.parser.ValueParser
+import de.krall.spreadsheets.sheet.value.Value
+import de.krall.spreadsheets.sheet.value.parser.ValueParser
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.DataFlavor
 import javax.swing.JComponent

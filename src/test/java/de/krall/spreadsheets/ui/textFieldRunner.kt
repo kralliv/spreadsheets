@@ -2,7 +2,7 @@ package de.krall.spreadsheets.ui
 
 import de.krall.spreadsheets.ui.event.Conditions
 import de.krall.spreadsheets.ui.event.KeyStroke
-import de.krall.spreadsheets.value.parser.ValueParser
+import de.krall.spreadsheets.sheet.value.parser.ValueParser
 import fernice.reflare.FlareLookAndFeel
 import java.awt.Dimension
 import javax.swing.JFrame

@@ -1,8 +1,8 @@
 package de.krall.spreadsheets.sheet
 
 import de.krall.spreadsheets.util.empty
-import de.krall.spreadsheets.value.EvaluatedValue
-import de.krall.spreadsheets.value.Value
+import de.krall.spreadsheets.sheet.value.EvaluatedValue
+import de.krall.spreadsheets.sheet.value.Value
 import java.util.concurrent.CopyOnWriteArrayList
 
 class HistoryAwareSpreadsheet(private val delegate: Spreadsheet) : Spreadsheet {

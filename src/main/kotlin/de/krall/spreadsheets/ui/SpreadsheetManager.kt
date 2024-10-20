@@ -4,7 +4,7 @@ import de.krall.spreadsheets.sheet.SpreadsheetImpl
 import de.krall.spreadsheets.sheet.io.readFrom
 import de.krall.spreadsheets.ui.dialog.SMessageDialog
 import de.krall.spreadsheets.ui.file.FileChoosers
-import de.krall.spreadsheets.value.parser.ValueParser
+import de.krall.spreadsheets.sheet.value.parser.ValueParser
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.Component
 import java.awt.Desktop

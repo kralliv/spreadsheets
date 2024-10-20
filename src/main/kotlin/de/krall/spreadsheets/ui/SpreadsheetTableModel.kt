@@ -1,7 +1,7 @@
 package de.krall.spreadsheets.ui
 
 import de.krall.spreadsheets.sheet.Spreadsheet
-import de.krall.spreadsheets.value.Value
+import de.krall.spreadsheets.sheet.value.Value
 import javax.swing.table.AbstractTableModel
 import kotlin.math.max
 

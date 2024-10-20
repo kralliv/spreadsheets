@@ -1,7 +1,7 @@
 package de.krall.spreadsheets.ui.highlight
 
-import de.krall.spreadsheets.value.parser.diagnotic.Diagnostic
-import de.krall.spreadsheets.value.parser.diagnotic.Severity
+import de.krall.spreadsheets.sheet.value.parser.diagnotic.Diagnostic
+import de.krall.spreadsheets.sheet.value.parser.diagnotic.Severity
 import java.awt.Color
 import java.awt.Graphics
 import java.awt.Shape

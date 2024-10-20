@@ -9,7 +9,7 @@ import de.krall.spreadsheets.ui.components.SScrollPane
 import de.krall.spreadsheets.ui.dialog.DialogTemplate
 import de.krall.spreadsheets.ui.dialog.SDialogContent
 import de.krall.spreadsheets.ui.dialog.SMessageDialog
-import de.krall.spreadsheets.value.parser.ValueParser
+import de.krall.spreadsheets.sheet.value.parser.ValueParser
 import fernice.reflare.classes
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.BorderLayout

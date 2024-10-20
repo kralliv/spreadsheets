@@ -1,7 +1,7 @@
 package de.krall.spreadsheets.sheet
 
-import de.krall.spreadsheets.value.EvaluatedValue
-import de.krall.spreadsheets.value.Value
+import de.krall.spreadsheets.sheet.value.EvaluatedValue
+import de.krall.spreadsheets.sheet.value.Value
 import java.io.Closeable
 
 interface Spreadsheet : Closeable {

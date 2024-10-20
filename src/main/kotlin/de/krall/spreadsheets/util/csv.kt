@@ -1,6 +1,6 @@
 package de.krall.spreadsheets.util
 
-import de.krall.spreadsheets.value.parser.Reader
+import de.krall.spreadsheets.sheet.value.parser.Reader
 
 fun String.parseCsv(): List<List<String>> {
     val lines = mutableListOf<List<String>>()

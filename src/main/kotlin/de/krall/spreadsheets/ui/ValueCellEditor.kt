@@ -2,8 +2,8 @@ package de.krall.spreadsheets.ui
 
 import de.krall.spreadsheets.ui.event.KeyStroke
 import de.krall.spreadsheets.ui.event.deregisterKeyboardAction
-import de.krall.spreadsheets.value.Value
-import de.krall.spreadsheets.value.parser.ValueParser
+import de.krall.spreadsheets.sheet.value.Value
+import de.krall.spreadsheets.sheet.value.parser.ValueParser
 import fernice.reflare.classes
 import java.awt.Component
 import java.awt.event.HierarchyEvent

@@ -4,8 +4,8 @@ import de.krall.spreadsheets.ui.components.SFormattedTextField
 import de.krall.spreadsheets.ui.event.KeyStroke
 import de.krall.spreadsheets.ui.event.registerKeyboardAction
 import de.krall.spreadsheets.ui.highlight.DiagnosticHighlighter
-import de.krall.spreadsheets.value.Value
-import de.krall.spreadsheets.value.parser.ValueParser
+import de.krall.spreadsheets.sheet.value.Value
+import de.krall.spreadsheets.sheet.value.parser.ValueParser
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.Point
 import java.awt.event.MouseEvent

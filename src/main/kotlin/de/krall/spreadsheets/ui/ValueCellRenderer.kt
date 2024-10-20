@@ -4,8 +4,8 @@ import de.krall.spreadsheets.sheet.Spreadsheet
 import de.krall.spreadsheets.ui.components.SRendererLabel
 import de.krall.spreadsheets.ui.render.StringRenderable
 import de.krall.spreadsheets.ui.util.useGraphics2D
-import de.krall.spreadsheets.value.ComputationError
-import de.krall.spreadsheets.value.EvaluatedValue
+import de.krall.spreadsheets.sheet.value.ComputationError
+import de.krall.spreadsheets.sheet.value.EvaluatedValue
 import fernice.reflare.classes
 import java.awt.Color
 import java.awt.Component
