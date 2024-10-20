@@ -26,6 +26,10 @@ private fun installLookAndFeel() {
     FlareLookAndFeel.install()
 
     CSSEngine.addStylesheet(Stylesheet.fromResource("/spreadsheets/css/main.css"))
+
+    when {
+        OS.isMac -> CSSEngine.addStylesheet(Stylesheet.fromResource("/spreadsheets/css/main-macos.css"))
+    }
 }
 
 private fun configureComponents() {

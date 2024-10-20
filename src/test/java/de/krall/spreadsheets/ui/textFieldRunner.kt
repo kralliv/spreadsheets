@@ -1,18 +1,16 @@
 package de.krall.spreadsheets.ui
 
-import de.krall.spreadsheets.ui.event.Conditions
-import de.krall.spreadsheets.ui.event.KeyStroke
 import de.krall.spreadsheets.sheet.value.parser.ValueParser
-import fernice.reflare.FlareLookAndFeel
+import de.krall.spreadsheets.ui.components.SButton
 import java.awt.Dimension
+import javax.swing.JButton
 import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.JTextField
 import javax.swing.WindowConstants
-import javax.swing.text.DefaultEditorKit
 
 fun main() {
-    FlareLookAndFeel.install()
+    initializeGraphicalEnvironment()
 
     val frame = JFrame()
     frame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
@@ -27,6 +25,11 @@ fun main() {
     val textField = JTextField()
     textField.columns = 10
     container.add(textField)
+
+    val button = SButton(SButton.Precedence.HIGH)
+    button.text = "Test"
+    button.isEnabled = false
+    container.add(button)
 
     frame.contentPane = container
 

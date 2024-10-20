@@ -57,7 +57,10 @@ fun JComponent.deregisterKeyboardAction(
     keyStroke ?: return
 
     for (condition in Conditions.WHEN_FOCUSED..Conditions.WHEN_IN_FOCUSED_WINDOW) {
-        setInputMap(condition, RemoveAwareInputMap(this, getInputMap(condition)))
+        val inputMap = getInputMap(condition)
+        if (inputMap !is RemoveAwareInputMap) {
+            setInputMap(condition, RemoveAwareInputMap(this, inputMap))
+        }
     }
 
     unregisterKeyboardAction(keyStroke)

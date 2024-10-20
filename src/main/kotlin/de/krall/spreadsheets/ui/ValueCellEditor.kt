@@ -21,6 +21,7 @@ class ValueCellEditor(val parser: ValueParser) : AbstractCellEditor(), TableCell
         field.columns = 0
         field.classes.add("s-table-cell-editor")
         field.deregisterKeyboardAction(KeyStroke("ENTER"))
+        field.deregisterKeyboardAction(KeyStroke("ESCAPE"))
         field.addHierarchyListener { event ->
             if (event.id == HierarchyEvent.HIERARCHY_CHANGED
                 && (event.changeFlags.toInt() and HierarchyEvent.SHOWING_CHANGED) != 0

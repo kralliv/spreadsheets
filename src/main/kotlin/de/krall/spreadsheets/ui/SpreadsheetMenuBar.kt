@@ -1,8 +1,8 @@
 package de.krall.spreadsheets.ui
 
 import de.krall.spreadsheets.ui.event.KeyStroke
-import java.awt.Component
 import java.awt.event.ActionEvent
+import javax.swing.JComponent
 import javax.swing.JMenu
 import javax.swing.JMenuBar
 import javax.swing.JMenuItem
@@ -117,13 +117,13 @@ class SpreadsheetMenuBar(val spreadsheetManager: SpreadsheetManager, val window:
             insertMenu.add(insertRowsItem)
         }
     }
+}
 
-    private fun Component.invokeAction(name: String, event: ActionEvent) {
-        val action = actionMap.get(name)
-        action?.actionPerformed(event.derive(component, name))
-    }
+private fun JComponent.invokeAction(name: String, event: ActionEvent) {
+    val action = actionMap.get(name)
+    action?.actionPerformed(event.derive(this, name))
+}
 
-    private fun ActionEvent.derive(source: Any, command: String): ActionEvent {
-        return ActionEvent(source, ActionEvent.ACTION_PERFORMED, command, modifiers.toLong(), `when`.toInt())
-    }
+private fun ActionEvent.derive(source: Any, command: String): ActionEvent {
+    return ActionEvent(source, ActionEvent.ACTION_PERFORMED, command, modifiers.toLong(), `when`.toInt())
 }

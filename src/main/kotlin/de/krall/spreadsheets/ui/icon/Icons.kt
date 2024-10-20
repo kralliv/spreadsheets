@@ -19,7 +19,7 @@ object Icons {
 }
 
 private fun loadIcon(path: String): Icon {
-    val resource = "/spreadsheets/icons/$path"
+    val resource = "/spreadsheets/icons$path"
     val url = Icons::class.java.getResource(resource) ?: error("cannot locate icon '$resource'")
 
     val hiresResource = createResourceVariant(resource)

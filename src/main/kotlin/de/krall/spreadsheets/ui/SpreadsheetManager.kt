@@ -69,11 +69,13 @@ class SpreadsheetManager {
     }
 
     init {
-        Desktop.getDesktop().setQuitHandler { _, response ->
-            if (spreadsheetWindows.toList().all { it.close() }) {
-                response.performQuit()
-            } else {
-                response.cancelQuit()
+        if (Desktop.getDesktop().isSupported(Desktop.Action.APP_QUIT_HANDLER)) {
+            Desktop.getDesktop().setQuitHandler { _, response ->
+                if (spreadsheetWindows.toList().all { it.close() }) {
+                    response.performQuit()
+                } else {
+                    response.cancelQuit()
+                }
             }
         }
     }

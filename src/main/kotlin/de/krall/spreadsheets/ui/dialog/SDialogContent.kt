@@ -80,7 +80,8 @@ abstract class SDialogContent : SContainer() {
     fun createTrailingComponents(): List<Component> {
         return buildList {
             for (action in createPrimaryActions()) {
-                val component = SButton(action)
+                val component = SButton()
+                component.action = action
                 add(component)
 
                 if (action.isDefaultAction) {

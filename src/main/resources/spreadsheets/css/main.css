@@ -4,6 +4,7 @@
     --font-color-disabled: hsl(0, 0%, 50%);
 
     --background-normal: hsl(0, 0%, 95%);
+    --border-normal: hsl(0, 0%, 75%);
 
     --menu-background-normal: hsl(0, 0%, 95%);
     --menu-background-hover: hsl(0, 0%, 90%);
@@ -17,8 +18,31 @@
     --table-cell-background-normal: hsl(0, 0%, 100%);
     --table-cell-background-selected: hsl(224, 76%, 95%);
 
-    --button-icon-background-color-hover: hsl(0, 0%, 50%, 30%);
-    --button-icon-background-color-active: hsl(0, 0%, 50%, 40%);
+    --input-border-normal: hsl(0, 0%, 77%);
+    --input-border-hover: hsl(0, 0%, 60%);
+    --input-border-focus: hsl(224, 93%, 84%);
+    --input-background-normal: hsl(0, 0%, 100%);
+    --input-background-active: hsl(0, 0%, 90%);
+    --input-background-disabled: hsl(0, 0%, 91%);
+
+    --button-high-border-normal: hsl(224, 80%, 50%);
+    --button-high-border-hover: hsl(224, 80%, 65%);
+    --button-high-border-focus: hsl(224, 100%, 75%);
+    --button-high-border-disabled: hsl(224, 7%, 55%);
+    --button-high-background-normal: hsl(224, 80%, 55%);
+    --button-high-background-hover: hsl(224, 90%, 65%);
+    --button-high-background-active: hsl(224, 80%, 60%);
+    --button-high-background-disabled: hsl(224, 7%, 55%);
+    --button-high-color-normal: hsl(0, 0%, 100%);
+    --button-high-color-disabled: hsl(0, 0%, 80%);
+
+    --icon-button-background-hover: hsl(0, 0%, 50%, 30%);
+    --icon-button-background-active: hsl(0, 0%, 50%, 40%);
+}
+
+::selection {
+    color: var(--font-color-normal);
+    background-color: hsl(210, 95%, 85%)
 }
 
 :root {
@@ -33,13 +57,14 @@ root, tooltip, combobox-popup {
 }
 
 popupmenu {
+    border: 1px var(--border-normal) solid;
     background: var(--menu-background-normal);
     padding: 5px 0;
 }
 
 menubar {
     background: var(--menu-background-normal);
-    border-bottom: 1px #bfbfbf solid;
+    border-bottom: 1px var(--border-normal) solid;
 }
 
 menuitem, menu {
@@ -56,49 +81,167 @@ menuitem, menu {
     }
 }
 
-menuseparator {
+separator {
     background-color: transparent;
-    padding: 5px 0;
-    color: #bfbfbf;
-}
-
-.s-table-header, .s-table-row-header {
-    background-color: var(--table-header-background-normal);
-    padding: 2px 4px;
-    color: var(--font-color-normal);
-}
-
-.s-table-header:active, .s-table-row-header:active {
-    background-color: var(--table-header-background-selected);
-}
-
-.s-table-row-header {
-    border-right: 1px #bfbfbf solid;
-    border-bottom: 1px #bfbfbf solid;
+    padding: 5px 10px;
+    color: var(--border-normal);
 }
 
 tooltip {
     padding: 10px;
 }
 
-/*.s-table-header:hover {*/
-/*    background: var(--table-header-background-hover);*/
-/*}*/
+text {
+    margin: 2px;
+    border: 1px var(--input-border-normal) solid;
+    border-radius: 0;
+    background-color: var(--input-background-normal);
+    padding: 1px 4px;
+    color: var(--font-color-normal);
+
+    &:hover {
+        border-color: var(--input-border-hover);
+    }
+
+    &:focus {
+        margin: 1px;
+        border: 2px var(--input-border-focus) solid;
+    }
+
+    &:disabled {
+        border: 1px var(--input-border-normal) solid;
+        background-color: var(--input-background-disabled);
+        color: var(--font-color-disabled);
+    }
+}
+
+button {
+    margin: 2px;
+    border: 1px var(--input-border-normal) solid;
+    border-radius: 4px;
+    background-color: var(--input-background-normal);
+    padding: 2px 15px;
+    color: var(--font-color-normal);
+
+    &:hover {
+        border-color: var(--input-border-hover);
+    }
+
+    &:focus {
+        margin: 1px;
+        border: 2px var(--input-border-focus) solid;
+    }
+
+    &:active {
+        background-color: var(--input-background-active);
+    }
+
+    &:disabled {
+        border: 1px var(--input-border-normal) solid;
+        background-color: var(--input-background-disabled);
+        color: var(--font-color-disabled);
+    }
+}
+
+button.s-icon-button {
+    margin: 0;
+    border: none;
+    background-color: transparent;
+    padding: 3px;
+
+    &:hover {
+        background-color: var(--icon-button-background-hover);
+    }
+
+    &:active {
+        background-color: var(--icon-button-background-active);
+    }
+
+    &:disabled {
+        background-color: transparent;
+    }
+}
+
+button.s-item-button {
+    margin: 0;
+    border: none;
+    background-color: transparent;
+    padding: 10px;
+
+    &:hover {
+        background-color: var(--icon-button-background-hover);
+    }
+
+    &:active {
+        background-color: var(--icon-button-background-active);
+        color: var(--font-color-normal);
+    }
+
+    &:disabled {
+        background-color: transparent;
+        color: var(--font-color-disabled);
+    }
+}
+
+button.s-button-high {
+    border-color: var(--button-high-border-normal);
+    background-color: var(--button-high-background-normal);
+    color: var(--button-high-color-normal);
+
+    &:hover {
+        border-color: var(--button-high-border-hover);
+        background-color: var(--button-high-background-hover);
+    }
+
+    &:focus {
+        margin: 1px;
+        border: 2px var(--button-high-border-focus) solid;
+    }
+
+    &:active {
+        background: var(--button-high-background-active);
+    }
+
+    &:disabled {
+        border-color: var(--button-high-border-disabled);
+        background: var(--button-high-background-disabled);
+        color: var(--button-high-color-disabled);
+    }
+}
+
+.s-dialog-content-wrapper, .s-dialog-content-wrapper-actions {
+    padding: 10px;
+}
+
+.s-table-header, .s-table-row-header {
+    background-color: var(--table-header-background-normal);
+    padding: 2px 4px;
+    color: var(--font-color-normal);
+
+    &:active {
+        background-color: var(--table-header-background-selected);
+    }
+}
+
+.s-table-row-header {
+    border-right: 1px var(--border-normal) solid;
+    border-bottom: 1px var(--border-normal) solid;
+}
 
 .s-table-cell-renderer {
     background-color: var(--table-cell-background-normal);
     color: var(--font-color-normal);
     padding: 2px 4px;
-}
 
-.s-table-cell-renderer:active {
-    background-color: var(--table-cell-background-selected);
-}
+    &:active {
+        background-color: var(--table-cell-background-selected);
+    }
 
-.s-table-cell-renderer:focus {
-    border: 2px var(--table-cell-border-selected) solid;
-    background-color: var(--table-cell-background-selected);
-    padding: 0 2px;
+    &:focus {
+        border: 2px var(--table-cell-border-selected) solid;
+        background-color: var(--table-cell-background-selected);
+        padding: 0 2px;
+    }
 }
 
 .t-table-cell-renderer-top {
@@ -121,54 +264,10 @@ tooltip {
     padding-left: 3px;
 }
 
-.s-table-cell-editor {
+text.s-table-cell-editor {
     margin: 0;
     border: 2px var(--table-cell-border-selected) solid;
     border-radius: 0;
     background-color: var(--table-cell-background-normal);
     padding: 0 2px;
-}
-
-button.s-icon-button {
-    margin: 0;
-    border: none;
-    background-color: transparent;
-    padding: 3px;
-
-    &:hover {
-        background-color: var(--button-icon-background-color-hover);
-    }
-
-    &:active {
-        background-color: var(--button-icon-background-color-active);
-    }
-
-    &:disabled {
-        background-color: transparent;
-    }
-}
-
-button.s-item-button {
-    margin: 0;
-    border: none;
-    background-color: transparent;
-    padding: 10px;
-
-    &:hover {
-        background-color: var(--button-icon-background-color-hover);
-    }
-
-    &:active {
-        background-color: var(--button-icon-background-color-active);
-        color: var(--font-color-normal);
-    }
-
-    &:disabled {
-        background-color: transparent;
-        color: var(--font-color-disabled);
-    }
-}
-
-.s-dialog-content-wrapper, .s-dialog-content-wrapper-actions {
-    padding: 10px;
 }
