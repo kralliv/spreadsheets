@@ -27,24 +27,31 @@ class SpreadsheetImpl(val parser: ValueParser) : Spreadsheet {
 
     private val listeners = CopyOnWriteArrayList<SpreadsheetListener>()
 
-    private val engine = SpreadsheetEngine(parser, lazyEvaluation = true) { column, row, _, isNonStructural ->
-        val cell = CellImpl(column, row)
+    private val engine = SpreadsheetEngine(parser, lazyEvaluation = true) { notification ->
+        when (notification) {
+            is Notification.CellChanged -> {
+                val cell = LiveCell(notification.column, notification.row)
+                val previousCell = SnapshotCell(notification.column, notification.row, notification.previousAttributes)
 
-        if (isNonStructural) {
-            listeners.forEach { it.cellUpdated(cell) }
-        } else {
-            listeners.forEach { it.cellChanged(cell) }
+                listeners.forEach { it.cellChanged(cell, previousCell) }
+            }
+
+            is Notification.CellUpdated -> {
+                val cell = LiveCell(notification.column, notification.row)
+
+                listeners.forEach { it.cellUpdated(cell) }
+            }
         }
     }
 
     override fun get(row: Int, column: Int): Cell {
-        return CellImpl(row, column)
+        return LiveCell(row, column)
     }
 
     override val rows: Sequence<Row>
-        get() = engine.rows().asSequence().map { row -> RowImpl(row) }
+        get() = engine.rows().asSequence().map { row -> LiveRow(row) }
 
-    private inner class RowImpl(
+    private inner class LiveRow(
         override val row: Int,
     ) : Row {
 
@@ -54,7 +61,7 @@ class SpreadsheetImpl(val parser: ValueParser) : Spreadsheet {
             get() = engine.columns(row).asSequence().map { column -> get(row, column) }
     }
 
-    private inner class CellImpl(
+    private inner class LiveCell(
         override val row: Int,
         override val column: Int,
     ) : Cell {
@@ -77,6 +84,20 @@ class SpreadsheetImpl(val parser: ValueParser) : Spreadsheet {
         }
     }
 
+    private class SnapshotCell(
+        override val row: Int,
+        override val column: Int,
+        val attributes: CellAttributes,
+    ) : Cell {
+
+        override var value: Value?
+            get() = attributes.value
+            set(value) {}
+
+        override val evaluatedValue: EvaluatedValue?
+            get() = attributes.evaluatedValue
+    }
+
     override fun addListener(listener: SpreadsheetListener) {
         listeners.add(listener)
     }
@@ -95,7 +116,7 @@ class SpreadsheetImpl(val parser: ValueParser) : Spreadsheet {
 private class SpreadsheetEngine(
     private val valueParser: ValueParser,
     private val lazyEvaluation: Boolean,
-    private val changeListener: ChangeListener,
+    private val changeListener: NotificationListener,
 ) : Closeable {
 
     private class Node(
@@ -188,8 +209,6 @@ private class SpreadsheetEngine(
         }
     }
 
-    private class Notification(val column: Int, val row: Int, val attributes: CellAttributes, val isNonStructural: Boolean)
-
     private val closed = AtomicBoolean(false)
     private val lock = ReentrantReadWriteLock()
 
@@ -205,6 +224,7 @@ private class SpreadsheetEngine(
                 lock.read {
                     evaluateNode(node)
                 }
+            } catch (ignore: InterruptedException) {
             } catch (t: Throwable) {
                 LOG.error(t) { "evaluation resulted in exception" }
             }
@@ -217,7 +237,8 @@ private class SpreadsheetEngine(
             try {
                 val notification = notifyQueue.take()
 
-                changeListener.cellChanged(notification.column, notification.row, notification.attributes, notification.isNonStructural)
+                changeListener.notify(notification)
+            } catch (ignore: InterruptedException) {
             } catch (t: Throwable) {
                 LOG.error(t) { "notification resulted in exception" }
             }
@@ -243,7 +264,7 @@ private class SpreadsheetEngine(
         val mutatedAttributes = mutation(previousAttributes)
         val attributes = parseValue(mutatedAttributes, previousAttributes)
 
-        if (attributes == previousAttributes) return@write
+        if (!attributes.hasNonVolatileDifferences(previousAttributes)) return@write
 
         if (attributes.isNotBlank()) {
             if (node == null) {
@@ -294,6 +315,8 @@ private class SpreadsheetEngine(
             node.addDependent(dependentNode)
         }
 
+        notifyNodeChanged(node, CellAttributes.Blank)
+
         invalidateNode(node)
 
         if (!lazyEvaluation) {
@@ -306,20 +329,22 @@ private class SpreadsheetEngine(
     private fun update(node: Node, attributes: CellAttributes) {
         val previousAttributes = node.update(attributes)
 
+        notifyNodeChanged(node, previousAttributes)
+
         if (previousAttributes.parsedValue !== attributes.parsedValue) {
             invalidateNode(node)
 
             if (!lazyEvaluation) {
                 requestEvaluation(node)
             }
-        } else {
-            notifyNodeChanged(node, nonStructural = true)
         }
     }
 
     private fun remove(node: Node) {
         grid[node.row, node.column] = null
-        node.update(CellAttributes.Blank)
+        val previousAttributes = node.update(CellAttributes.Blank)
+
+        notifyNodeChanged(node, previousAttributes)
 
         invalidateNode(node)
 
@@ -335,7 +360,7 @@ private class SpreadsheetEngine(
         node.clearDependencies()
         blankCells.clearDependents(node)
 
-        notifyNodeChanged(node)
+        notifyNodeUpdated(node)
 
         for (dependentNode in node.clearDependents()) {
             invalidateNode(dependentNode)
@@ -389,7 +414,7 @@ private class SpreadsheetEngine(
         val evaluatedValue = computedValue.toEvaluatedValue()
         node.update(node.attributes.copy(evaluatedValue = evaluatedValue))
 
-        notifyNodeChanged(node, nonStructural = true)
+        notifyNodeUpdated(node)
 
         return evaluatedValue
     }
@@ -434,8 +459,12 @@ private class SpreadsheetEngine(
         }
     }
 
-    private fun notifyNodeChanged(node: Node, nonStructural: Boolean = false) {
-        notifyQueue.add(Notification(node.column, node.row, node.attributes, nonStructural))
+    private fun notifyNodeChanged(node: Node, previousAttributes: CellAttributes) {
+        notifyQueue.add(Notification.CellChanged(node.column, node.row, node.attributes, previousAttributes))
+    }
+
+    private fun notifyNodeUpdated(node: Node) {
+        notifyQueue.add(Notification.CellUpdated(node.column, node.row, node.attributes))
     }
 
     private fun checkNotClosed() {
@@ -461,8 +490,23 @@ private class SpreadsheetEngine(
     }
 }
 
-private fun interface ChangeListener {
-    fun cellChanged(column: Int, row: Int, attributes: CellAttributes, isNonStructural: Boolean)
+private fun interface NotificationListener {
+    fun notify(notification: Notification)
+}
+
+private sealed class Notification {
+    data class CellChanged(
+        val column: Int,
+        val row: Int,
+        val attributes: CellAttributes,
+        val previousAttributes: CellAttributes,
+    ) : Notification()
+
+    data class CellUpdated(
+        val column: Int,
+        val row: Int,
+        val attributes: CellAttributes,
+    ) : Notification()
 }
 
 private data class CellAttributes(
@@ -473,6 +517,10 @@ private data class CellAttributes(
 
     fun isBlank(): Boolean = value == null
     fun isNotBlank(): Boolean = !isBlank()
+
+    fun hasNonVolatileDifferences(other: CellAttributes): Boolean {
+        return value != other.value
+    }
 
     companion object {
         val Blank = CellAttributes(null, null, null)

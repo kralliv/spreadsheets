@@ -1,5 +1,6 @@
 package de.krall.spreadsheets.ui.table
 
+import de.krall.spreadsheets.ui.OS
 import de.krall.spreadsheets.ui.event.Conditions
 import de.krall.spreadsheets.ui.event.KeyStroke
 import de.krall.spreadsheets.ui.event.registerKeyboardAction
@@ -16,7 +17,13 @@ import javax.swing.SwingUtilities
 import javax.swing.plaf.TableUI
 import javax.swing.plaf.UIResource
 
+private val IGNORABLE_KEY_CODES = setOf(KeyEvent.VK_UNDEFINED, KeyEvent.VK_ESCAPE, KeyEvent.VK_ENTER, KeyEvent.VK_CAPS_LOCK, KeyEvent.VK_BACK_SPACE)
+
 open class STable : JXTable() {
+
+    init {
+        surrendersFocusOnKeystroke = true
+    }
 
     var tableRowHeader: STableRowHeader? = null
         set(tableRowHeader) {
@@ -160,14 +167,9 @@ open class STable : JXTable() {
         }
 
         // "Why not start editing when pressing keys like shift?" said Swing
-        if (e.id == KeyEvent.KEY_PRESSED
-            && (ks.keyCode == 0
-                    || ks.keyCode == KeyEvent.VK_ESCAPE
-                    || ks.keyCode == KeyEvent.VK_ENTER
-                    || ks.keyCode == KeyEvent.VK_CAPS_LOCK
-                    || ks.keyCode == KeyEvent.VK_BACK_SPACE)
-        ) {
-            return false
+        if (e.id == KeyEvent.KEY_PRESSED) {
+            if (ks.keyCode in IGNORABLE_KEY_CODES) return false
+            if (e.isControlDown || (OS.isMac && e.isMetaDown)) return false
         }
 
         return super.processKeyBinding(ks, e, condition, pressed)

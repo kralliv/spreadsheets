@@ -1,6 +1,7 @@
 package de.krall.spreadsheets.ui
 
 import de.krall.spreadsheets.sheet.Cell
+import de.krall.spreadsheets.sheet.HistoryAwareSpreadsheet
 import de.krall.spreadsheets.sheet.Spreadsheet
 import de.krall.spreadsheets.sheet.SpreadsheetListener
 import de.krall.spreadsheets.sheet.transfer.SpreadsheetTransferable
@@ -21,7 +22,12 @@ import javax.swing.TransferHandler
 import javax.swing.event.ListSelectionEvent
 import javax.swing.event.ListSelectionListener
 
-class SpreadsheetTable(val spreadsheet: Spreadsheet, val parser: ValueParser) : STable() {
+class SpreadsheetTable(spreadsheet: Spreadsheet, val parser: ValueParser) : STable() {
+
+    val spreadsheet = HistoryAwareSpreadsheet(spreadsheet)
+
+    private val spreadsheetModel: SpreadsheetTableModel
+        get() = model as SpreadsheetTableModel
 
     init {
         isHorizontalScrollEnabled = true
@@ -30,11 +36,11 @@ class SpreadsheetTable(val spreadsheet: Spreadsheet, val parser: ValueParser) : 
 
         tableHeader.reorderingAllowed = false
 
-        model = SpreadsheetTableModel(spreadsheet)
+        model = SpreadsheetTableModel(this.spreadsheet)
 
-        spreadsheet.addListener(object : SpreadsheetListener {
-            override fun cellChanged(cell: Cell) {
-                invokeLater { repaint() }
+        this.spreadsheet.addListener(object : SpreadsheetListener {
+            override fun cellChanged(cell: Cell, previousCell: Cell) {
+                // Cell will also be updated
             }
 
             override fun cellUpdated(cell: Cell) {
@@ -49,7 +55,7 @@ class SpreadsheetTable(val spreadsheet: Spreadsheet, val parser: ValueParser) : 
             getColumn(index).preferredWidth = 100
         }
 
-        setDefaultRenderer(Value::class.java, ValueCellRenderer(spreadsheet))
+        setDefaultRenderer(Value::class.java, ValueCellRenderer(this.spreadsheet))
         setDefaultEditor(Value::class.java, ValueCellEditor(parser))
 
         columnModel.selectionModel.addListSelectionListener(object : ListSelectionListener {
@@ -66,8 +72,13 @@ class SpreadsheetTable(val spreadsheet: Spreadsheet, val parser: ValueParser) : 
         transferHandler = SpreadsheetTransferHandler()
     }
 
-    private val spreadsheetModel: SpreadsheetTableModel
-        get() = model as SpreadsheetTableModel
+    fun undo() {
+        spreadsheet.undo()
+    }
+
+    fun redo() {
+        spreadsheet.redo()
+    }
 
     fun addRows(count: Int) {
         spreadsheetModel.addRows(count)
@@ -135,17 +146,19 @@ class SpreadsheetTable(val spreadsheet: Spreadsheet, val parser: ValueParser) : 
                 else -> return false
             }
 
-            var rowOffset = 0
-            for (row in selectedRows) {
-                var columnOffset = 0
-                for (column in selectedColumns) {
-                    val cell = spreadsheet[row, column]
+            spreadsheet.compositeChange {
+                var rowOffset = 0
+                for (row in selectedRows) {
+                    var columnOffset = 0
+                    for (column in selectedColumns) {
+                        val cell = spreadsheet[row, column]
 
-                    cell.value = data[rowOffset % data.rowCount, columnOffset % data.columnCount].value
+                        cell.value = data[rowOffset % data.rowCount, columnOffset % data.columnCount].value
 
-                    columnOffset++
+                        columnOffset++
+                    }
+                    rowOffset++
                 }
-                rowOffset++
             }
 
             return true

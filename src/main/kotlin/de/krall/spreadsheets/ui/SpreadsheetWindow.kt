@@ -66,12 +66,12 @@ class SpreadsheetWindow(
         updateTitle()
 
         spreadsheet.addListener(object : SpreadsheetListener {
-            override fun cellChanged(cell: Cell) {
+            override fun cellChanged(cell: Cell, previousCell: Cell) {
                 isModified = true
             }
 
             override fun cellUpdated(cell: Cell) {
-                // updates are non-structural aka. visual
+                // updates are volatile aka. visual
             }
         })
 
@@ -94,7 +94,6 @@ class SpreadsheetWindow(
 
         rootPane.putClientProperty("Window.documentModified", isModified)
     }
-
 
     fun save(): Boolean {
         var file = this.file
@@ -145,6 +144,7 @@ class SpreadsheetWindow(
             }
         }
 
+        spreadsheet.close()
         dispose()
         return true
     }

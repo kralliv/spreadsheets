@@ -16,10 +16,7 @@ class OverviewWindow(val spreadsheetManager: SpreadsheetManager) : JFrame() {
         defaultCloseOperation = EXIT_ON_CLOSE
         title = "Spreadsheets"
         isResizable = false
-
-        if (OS.isMac) {
-            jMenuBar = SpreadsheetMenuBar(spreadsheetManager, window = null)
-        }
+        jMenuBar = SpreadsheetMenuBar(spreadsheetManager, window = null)
 
         val container = SContainer()
         container.style = "padding: 20px"

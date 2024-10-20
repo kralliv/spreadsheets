@@ -32,6 +32,6 @@ interface Cell {
 }
 
 interface SpreadsheetListener {
-    fun cellChanged(cell: Cell)
+    fun cellChanged(cell: Cell, previousCell: Cell)
     fun cellUpdated(cell: Cell)
 }

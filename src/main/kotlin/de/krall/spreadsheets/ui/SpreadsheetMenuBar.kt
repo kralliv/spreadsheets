@@ -13,14 +13,14 @@ class SpreadsheetMenuBar(val spreadsheetManager: SpreadsheetManager, val window:
         val fileMenu = JMenu("File")
         add(fileMenu)
 
-        val newSpreadsheetItem = JMenuItem("New")
+        val newSpreadsheetItem = JMenuItem("New Spreadsheet")
         newSpreadsheetItem.accelerator = KeyStroke("ctrl N", macos = "cmd N")
         newSpreadsheetItem.addActionListener {
             spreadsheetManager.createSpreadsheet()
         }
         fileMenu.add(newSpreadsheetItem)
 
-        val openSpreadsheetItem = JMenuItem("Open...")
+        val openSpreadsheetItem = JMenuItem("Open Spreadsheet...")
         openSpreadsheetItem.accelerator = KeyStroke("ctrl O", macos = "cmd O")
         openSpreadsheetItem.addActionListener {
             spreadsheetManager.chooseSpreadsheet(this)
@@ -28,6 +28,13 @@ class SpreadsheetMenuBar(val spreadsheetManager: SpreadsheetManager, val window:
         fileMenu.add(openSpreadsheetItem)
 
         if (window != null) {
+            val closeItem = JMenuItem("Close Spreadsheet")
+            closeItem.accelerator = KeyStroke("ctrl W", macos = "cmd W")
+            closeItem.addActionListener {
+                window.close()
+            }
+            fileMenu.add(closeItem)
+
             fileMenu.addSeparator()
 
             val saveItem = JMenuItem("Save...")
@@ -69,6 +76,22 @@ class SpreadsheetMenuBar(val spreadsheetManager: SpreadsheetManager, val window:
                 window.table.invokeAction("paste", event)
             }
             editMenu.add(pasteItem)
+
+            editMenu.addSeparator()
+
+            val undoItem = JMenuItem("Undo")
+            undoItem.accelerator = KeyStroke("ctrl Z", macos = "cmd Z")
+            undoItem.addActionListener { event ->
+                window.table.undo()
+            }
+            editMenu.add(undoItem)
+
+            val redoItem = JMenuItem("Redo")
+            redoItem.accelerator = KeyStroke("ctrl shift Z", macos = "cmd shift Z")
+            redoItem.addActionListener { event ->
+                window.table.redo()
+            }
+            editMenu.add(redoItem)
         }
 
         if (window != null) {
