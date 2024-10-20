@@ -236,6 +236,7 @@ class DialogTemplate(
         val OK = DialogTemplate(positive = "Ok")
         val SAVE_CANCEL = DialogTemplate(positive = "Save", neutral = "Cancel")
         val SAVE_DISCARD_CANCEL = DialogTemplate(positive = "Save", negative = "Discard", neutral = "Cancel")
+        val INSERT_CANCEL = DialogTemplate(positive = "Insert", neutral = "Cancel")
         val OPEN_CANCEL = DialogTemplate(positive = "Open", neutral = "Cancel")
     }
 }

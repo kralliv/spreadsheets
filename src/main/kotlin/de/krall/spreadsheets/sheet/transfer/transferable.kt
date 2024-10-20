@@ -35,6 +35,6 @@ class SpreadsheetTransferable(
     }
 
     companion object {
-        val Flavor = DataFlavor(DataFlavor.javaJVMLocalObjectMimeType, "spreadsheet")
+        val Flavor = DataFlavor(DataFlavor.javaJVMLocalObjectMimeType+";class=${TransferableSpreadsheet::class.java.name}", "spreadsheet")
     }
 }

@@ -4,8 +4,11 @@ import de.krall.spreadsheets.ui.event.Conditions
 import de.krall.spreadsheets.ui.event.KeyStroke
 import de.krall.spreadsheets.ui.event.registerKeyboardAction
 import org.jdesktop.swingx.JXTable
+import java.awt.Point
 import java.awt.event.ActionListener
 import java.awt.event.KeyEvent
+import java.awt.event.MouseEvent
+import javax.swing.JComponent
 import javax.swing.JScrollPane
 import javax.swing.JViewport
 import javax.swing.KeyStroke
@@ -95,6 +98,28 @@ open class STable : JXTable() {
         configureEnclosingScrollPaneUI()
     }
 
+    override fun removeEditor() {
+        val editing = getCellEditor() != null
+        val editingRow = editingRow
+        val editingColumn = editingColumn
+
+        super.removeEditor()
+
+        if (editing) {
+            val startCellRect = getCellRect(editingRow, editingColumn, false)
+
+            var endCellRect = startCellRect
+            for (nextColumn in (editingColumn + 1)..<columnCount) {
+                if ((endCellRect.x + endCellRect.width) - startCellRect.x >= STableUI.MAX_EDITOR_EXTEND) break
+                endCellRect = getCellRect(editingRow, nextColumn, true)
+            }
+
+            val cellRect = startCellRect.union(endCellRect)
+
+            repaint(cellRect)
+        }
+    }
+
     init {
         installActions()
     }
@@ -160,5 +185,44 @@ open class STable : JXTable() {
             }
         }
         return false
+    }
+
+    override fun getToolTipLocation(event: MouseEvent): Point? {
+        val p = event.getPoint()
+
+        // Locate the renderer under the event location
+        val hitColumnIndex = columnAtPoint(p)
+        val hitRowIndex = rowAtPoint(p)
+
+        if ((hitColumnIndex != -1) && (hitRowIndex != -1)) {
+            val renderer = getCellRenderer(hitRowIndex, hitColumnIndex)
+            val component = prepareRenderer(renderer, hitRowIndex, hitColumnIndex)
+
+            // Now have to see if the component is a JComponent before
+            // getting the tip
+            if (component is JComponent) {
+                // Convert the event to the renderer's coordinate system
+                val cellRect = getCellRect(hitRowIndex, hitColumnIndex, true)
+                p.translate(-cellRect.x, -cellRect.y)
+
+                val modifiers = event.modifiersEx
+                val newEvent = MouseEvent(
+                    component, event.getID(),
+                    event.getWhen(), modifiers,
+                    p.x, p.y,
+                    event.xOnScreen,
+                    event.yOnScreen,
+                    event.getClickCount(),
+                    event.isPopupTrigger,
+                    MouseEvent.NOBUTTON
+                )
+
+                val tooltip = component.getToolTipText(newEvent)
+                if (tooltip != null) {
+                    return Point(cellRect.x + cellRect.width, cellRect.y)
+                }
+            }
+        }
+        return null
     }
 }

@@ -1,7 +1,7 @@
 package de.krall.spreadsheets.ui
 
 import de.krall.spreadsheets.ui.event.KeyStroke
-import fernice.reflare.light.FMenu
+import java.awt.Component
 import java.awt.event.ActionEvent
 import javax.swing.JMenu
 import javax.swing.JMenuBar
@@ -10,7 +10,7 @@ import javax.swing.JMenuItem
 class SpreadsheetMenuBar(val spreadsheetManager: SpreadsheetManager, val window: SpreadsheetWindow?) : JMenuBar() {
 
     init {
-        val fileMenu = FMenu("File")
+        val fileMenu = JMenu("File")
         add(fileMenu)
 
         val newSpreadsheetItem = JMenuItem("New")
@@ -44,9 +44,7 @@ class SpreadsheetMenuBar(val spreadsheetManager: SpreadsheetManager, val window:
             }
             fileMenu.add(saveAsItem)
         }
-    }
 
-    init {
         if (window != null) {
             val editMenu = JMenu("Edit")
             add(editMenu)
@@ -54,26 +52,55 @@ class SpreadsheetMenuBar(val spreadsheetManager: SpreadsheetManager, val window:
             val copyItem = JMenuItem("Copy")
             copyItem.accelerator = KeyStroke("ctrl C", macos = "cmd C")
             copyItem.addActionListener { event ->
-                val action = window.table.actionMap.get("copy")
-                action.actionPerformed(ActionEvent(window.table, ActionEvent.ACTION_PERFORMED, "copy", event.modifiers.toLong(), event.`when`.toInt()))
+                window.table.invokeAction("copy", event)
             }
             editMenu.add(copyItem)
 
             val cutItem = JMenuItem("Cut")
             cutItem.accelerator = KeyStroke("ctrl X", macos = "cmd X")
             cutItem.addActionListener { event ->
-                val action = window.table.actionMap.get("cut")
-                action.actionPerformed(ActionEvent(window.table, ActionEvent.ACTION_PERFORMED, "cut", event.modifiers.toLong(), event.`when`.toInt()))
+                window.table.invokeAction("cut", event)
             }
             editMenu.add(cutItem)
 
             val pasteItem = JMenuItem("Paste")
             pasteItem.accelerator = KeyStroke("ctrl V", macos = "cmd V")
             pasteItem.addActionListener { event ->
-                val action = window.table.actionMap.get("paste")
-                action.actionPerformed(ActionEvent(window.table, ActionEvent.ACTION_PERFORMED, "paste", event.modifiers.toLong(), event.`when`.toInt()))
+                window.table.invokeAction("paste", event)
             }
             editMenu.add(pasteItem)
         }
+
+        if (window != null) {
+            val insertMenu = JMenu("Insert")
+            add(insertMenu)
+
+            val insertColumnsItem = JMenuItem("Blank Columns...")
+            insertColumnsItem.addActionListener {
+                val number = InsertRowsColumnsDialog(InsertRowsColumnsDialog.Axis.Column).showAndGet(this)
+                if (number != null) {
+                    window.table.addColumns(number)
+                }
+            }
+            insertMenu.add(insertColumnsItem)
+
+            val insertRowsItem = JMenuItem("Blank Rows...")
+            insertRowsItem.addActionListener {
+                val number = InsertRowsColumnsDialog(InsertRowsColumnsDialog.Axis.Row).showAndGet(this)
+                if (number != null) {
+                    window.table.addRows(number)
+                }
+            }
+            insertMenu.add(insertRowsItem)
+        }
+    }
+
+    private fun Component.invokeAction(name: String, event: ActionEvent) {
+        val action = actionMap.get(name)
+        action?.actionPerformed(event.derive(component, name))
+    }
+
+    private fun ActionEvent.derive(source: Any, command: String): ActionEvent {
+        return ActionEvent(source, ActionEvent.ACTION_PERFORMED, command, modifiers.toLong(), `when`.toInt())
     }
 }

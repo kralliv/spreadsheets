@@ -11,6 +11,8 @@ import java.io.DataOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 
 private const val VERSION = 1
 private val MAGIC_NUMBER = byteArrayOf(0x23, 0x7E, 0x1A, 0x0D)
@@ -28,14 +30,16 @@ fun Spreadsheet.writeTo(outputStream: OutputStream) {
     output.writeByte(VERSION)
     output.write(MAGIC_NUMBER)
 
+    val contentOutput = DataOutputStream(GZIPOutputStream(output, true))
+
     val rows = rows.toList()
 
-    output.writeInt(rows.size)
+    contentOutput.writeInt(rows.size)
     for (row in rows) {
-        row.writeRow(output)
+        row.writeRow(contentOutput)
     }
 
-    output.flush()
+    contentOutput.flush()
 }
 
 private fun Row.writeRow(output: DataOutput) {
@@ -79,9 +83,11 @@ fun Spreadsheet.readFrom(inputStream: InputStream) {
     if (!magicNumber.contentEquals(MAGIC_NUMBER)) throw IOException("invalid format")
     if (version != VERSION) throw IOException("unsupported version: $version")
 
-    val rowCount = input.readInt()
+    val contentInput = DataInputStream(GZIPInputStream(input))
+
+    val rowCount = contentInput.readInt()
     for (rowIndex in 0..<rowCount) {
-        readRow(input)
+        readRow(contentInput)
     }
 }
 

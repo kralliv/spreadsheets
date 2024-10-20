@@ -1,6 +1,5 @@
 package de.krall.spreadsheets.ui.highlight
 
-import de.krall.spreadsheets.value.parser.SlSource
 import de.krall.spreadsheets.value.parser.diagnotic.Diagnostic
 import de.krall.spreadsheets.value.parser.diagnotic.Severity
 import java.awt.Color
@@ -26,9 +25,10 @@ class DiagnosticHighlighter : DefaultHighlighter() {
     fun set(diagnostics: List<Diagnostic>) {
         diagnosticHighlights.clear()
         for (diagnostic in diagnostics) {
-            val source = diagnostic.source ?: continue
+            val offset = diagnostic.source?.offset ?: 0
+            val length = diagnostic.source?.length ?: 0
 
-            diagnosticHighlights.add(DiagnosticHighlight(diagnostic, source))
+            diagnosticHighlights.add(DiagnosticHighlight(diagnostic, offset, offset + length))
         }
     }
 
@@ -58,10 +58,11 @@ class DiagnosticHighlighter : DefaultHighlighter() {
         }
     }
 
-    private class DiagnosticHighlight(val diagnostic: Diagnostic, val source: SlSource) : LayeredHighlight() {
-
-        private val start = source.offset
-        private val end = start + source.length
+    private class DiagnosticHighlight(
+        val diagnostic: Diagnostic,
+        private val start: Int,
+        private val end: Int,
+    ) : LayeredHighlight() {
 
         override fun getStartOffset(): Int = start
         override fun getEndOffset(): Int = end

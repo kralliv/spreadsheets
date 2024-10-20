@@ -66,6 +66,17 @@ class SpreadsheetTable(val spreadsheet: Spreadsheet, val parser: ValueParser) : 
         transferHandler = SpreadsheetTransferHandler()
     }
 
+    private val spreadsheetModel: SpreadsheetTableModel
+        get() = model as SpreadsheetTableModel
+
+    fun addRows(count: Int) {
+        spreadsheetModel.addRows(count)
+    }
+
+    fun addColumns(count: Int) {
+        spreadsheetModel.addColumns(count)
+    }
+
     private inner class SpreadsheetTransferHandler : TransferHandler() {
 
         override fun exportToClipboard(comp: JComponent, clip: Clipboard, action: Int) {

@@ -65,7 +65,7 @@ class SaveDialog : SResultDialogContent<Path>() {
 
         val path = directory.resolve(fileName.trim())
 
-        close(path)
+        closeWithResult(path)
     }
 
     override val defaultFocusComponent: Component?

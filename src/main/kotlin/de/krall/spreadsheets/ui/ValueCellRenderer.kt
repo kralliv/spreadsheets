@@ -10,14 +10,16 @@ import fernice.reflare.classes
 import java.awt.Color
 import java.awt.Component
 import java.awt.Graphics
+import java.awt.Point
 import java.awt.Shape
+import java.awt.event.MouseEvent
 import java.awt.geom.Path2D
 import java.text.DecimalFormat
 import javax.swing.JTable
 import javax.swing.SwingConstants
 import javax.swing.table.TableCellRenderer
 
-class ValueCellRenderer(val spreadsheet: Spreadsheet) : TableCellRenderer {
+class ValueCellRenderer(val spreadsheet: Spreadsheet) : SRendererLabel(), TableCellRenderer, StringRenderable {
 
     private val numberFormat = DecimalFormat().apply {
         minimumIntegerDigits = 1
@@ -25,10 +27,8 @@ class ValueCellRenderer(val spreadsheet: Spreadsheet) : TableCellRenderer {
         maximumFractionDigits = Int.MAX_VALUE
     }
 
-    private val valueLabel = ValueLabel()
-
     init {
-        valueLabel.classes.add("s-table-cell-renderer")
+        classes.add("s-table-cell-renderer")
     }
 
     override fun getTableCellRendererComponent(
@@ -43,7 +43,7 @@ class ValueCellRenderer(val spreadsheet: Spreadsheet) : TableCellRenderer {
 
         val evaluatedValue = cell.evaluatedValue
 
-        valueLabel.text = when (evaluatedValue) {
+        text = when (evaluatedValue) {
             null -> ""
             is EvaluatedValue.Text -> evaluatedValue.text
             is EvaluatedValue.Number -> numberFormat.format(evaluatedValue.number)
@@ -55,19 +55,66 @@ class ValueCellRenderer(val spreadsheet: Spreadsheet) : TableCellRenderer {
             }
         }
 
-        valueLabel.horizontalAlignment = when (evaluatedValue) {
+        horizontalAlignment = when (evaluatedValue) {
             is EvaluatedValue.Number -> SwingConstants.RIGHT
             else -> SwingConstants.LEADING
         }
 
-        valueLabel.isErroneous = when (evaluatedValue) {
+        isErroneous = when (evaluatedValue) {
             is EvaluatedValue.Error -> true
             else -> false
         }
 
-        handleSelectionBorder(table, isSelected, hasFocus, row, column, valueLabel)
+        toolTipText = when (evaluatedValue) {
+            null -> null
+            is EvaluatedValue.Text -> null
+            is EvaluatedValue.Number -> null
+            is EvaluatedValue.Unevaluated -> "This cell is currently being evaluated."
+            is EvaluatedValue.Error -> when (evaluatedValue.error) {
+                is ComputationError.BadFormula -> "The entered formula is invalid."
+                is ComputationError.CircularDependency -> "There are circular dependencies. Formulas must not reference each other."
+                is ComputationError.DivisionByZero -> "The evaluation encountered a division by zero."
+            }
+        }
 
-        return valueLabel
+        handleSelectionBorder(table, isSelected, hasFocus, row, column, this)
+
+        return this
+    }
+
+    var isErroneous: Boolean = false
+
+    override fun paintComponent(g: Graphics) {
+        super.paintComponent(g)
+
+        if (isErroneous) {
+            g.useGraphics2D { g2 ->
+                g2.color = Color.RED
+                g2.fill(createCorner())
+            }
+        }
+    }
+
+    private fun createCorner(): Shape {
+        val path = Path2D.Double()
+
+        path.moveTo(width.toDouble() - CORNER_SIZE.toDouble(), 0.0)
+        path.lineTo(width.toDouble(), 0.0)
+        path.lineTo(width.toDouble(), CORNER_SIZE.toDouble())
+        path.closePath()
+
+        return path
+    }
+
+    override fun renderToString(): String = text
+
+    override fun getToolTipLocation(event: MouseEvent): Point? {
+        if (toolTipText == null) return null
+        return Point(width, 0)
+    }
+
+    companion object {
+        private const val CORNER_SIZE = 7
     }
 
     private fun handleSelectionBorder(table: JTable, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int, component: Component) {
@@ -105,38 +152,5 @@ class ValueCellRenderer(val spreadsheet: Spreadsheet) : TableCellRenderer {
         } else {
             component.classes.remove("t-table-cell-renderer-bottom")
         }
-    }
-}
-
-private class ValueLabel : SRendererLabel(), StringRenderable {
-
-    var isErroneous: Boolean = false
-
-    override fun paintComponent(g: Graphics) {
-        super.paintComponent(g)
-
-        if (isErroneous) {
-            g.useGraphics2D { g2 ->
-                g2.color = Color.RED
-                g2.fill(createCorner())
-            }
-        }
-    }
-
-    private fun createCorner(): Shape {
-        val path = Path2D.Double()
-
-        path.moveTo(width.toDouble() - CORNER_SIZE.toDouble(), 0.0)
-        path.lineTo(width.toDouble(), 0.0)
-        path.lineTo(width.toDouble(), CORNER_SIZE.toDouble())
-        path.closePath()
-
-        return path
-    }
-
-    override fun renderToString(): String = text
-
-    companion object {
-        private const val CORNER_SIZE = 7
     }
 }

@@ -6,7 +6,7 @@ abstract class SResultDialogContent<T> : SDialogContent() {
 
     var result: T? = null
 
-    fun close(result: T?) {
+    fun closeWithResult(result: T?) {
         this.result = result
 
         close(if (result != null) POSITIVE else NEUTRAL)

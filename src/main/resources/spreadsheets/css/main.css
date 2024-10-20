@@ -77,6 +77,10 @@ menuseparator {
     border-bottom: 1px #bfbfbf solid;
 }
 
+tooltip {
+    padding: 10px;
+}
+
 /*.s-table-header:hover {*/
 /*    background: var(--table-header-background-hover);*/
 /*}*/

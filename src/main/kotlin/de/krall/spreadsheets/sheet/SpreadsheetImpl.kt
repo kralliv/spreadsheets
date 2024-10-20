@@ -60,13 +60,21 @@ class SpreadsheetImpl(val parser: ValueParser) : Spreadsheet {
     ) : Cell {
 
         override var value: Value?
-            get() = engine.read(column, row).value
+            get() = read().value
             set(value) {
-                engine.write(column, row) { it.copy(value = value) }
+                write { it.copy(value = value) }
             }
 
         override val evaluatedValue: EvaluatedValue?
-            get() = engine.read(column, row).evaluatedValue
+            get() = read().evaluatedValue
+
+        private fun read(): CellAttributes {
+            return engine.read(column, row)
+        }
+
+        private fun write(mutation: (CellAttributes) -> CellAttributes) {
+            engine.write(column, row, mutation)
+        }
     }
 
     override fun addListener(listener: SpreadsheetListener) {
@@ -82,6 +90,8 @@ class SpreadsheetImpl(val parser: ValueParser) : Spreadsheet {
     }
 }
 
+// The engine is column-major to simplify interaction with
+// a x/y grid. The rest of the application is row-major.
 private class SpreadsheetEngine(
     private val valueParser: ValueParser,
     private val lazyEvaluation: Boolean,
@@ -232,6 +242,8 @@ private class SpreadsheetEngine(
         val previousAttributes = node?.attributes ?: CellAttributes.Blank
         val mutatedAttributes = mutation(previousAttributes)
         val attributes = parseValue(mutatedAttributes, previousAttributes)
+
+        if (attributes == previousAttributes) return@write
 
         if (attributes.isNotBlank()) {
             if (node == null) {

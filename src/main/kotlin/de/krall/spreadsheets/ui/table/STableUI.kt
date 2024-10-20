@@ -375,7 +375,7 @@ class STableUI(table: JTable) : FlareTableUI(table) {
             // Allow the editor to grow a bit
             val preferredSize = component.preferredSize
 
-            val preferredWidth = min(preferredSize.width, 300)
+            val preferredWidth = min(preferredSize.width, MAX_EDITOR_EXTEND)
             var width = cellRect.width
             for (nextColumn in (column + 1)..<table.columnCount) {
                 if (width >= preferredWidth) break
@@ -415,5 +415,9 @@ class STableUI(table: JTable) : FlareTableUI(table) {
                 cellRect.width, cellRect.height, true
             )
         }
+    }
+
+    companion object {
+        const val MAX_EDITOR_EXTEND = 400
     }
 }
