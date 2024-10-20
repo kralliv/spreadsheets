@@ -4,5 +4,5 @@ import de.krall.spreadsheets.value.ComputedValue
 
 sealed interface Expression {
 
-    fun compute(references: ReferenceResolver): ComputedValue?
+    fun compute(references: ReferenceResolver): ComputedValue
 }

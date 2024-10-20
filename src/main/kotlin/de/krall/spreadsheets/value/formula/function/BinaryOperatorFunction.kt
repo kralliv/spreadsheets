@@ -5,26 +5,11 @@ import de.krall.spreadsheets.value.formula.ReferenceResolver
 
 abstract class BinaryOperatorFunction : AbstractFunction() {
 
-    override fun call(arguments: List<ComputedValue?>, references: ReferenceResolver): ComputedValue {
+    override fun call(arguments: List<ComputedValue>, references: ReferenceResolver): ComputedValue {
         assert(arguments.size == 2)
 
-        val left = when (val value = resolve(arguments[0], references)) {
-            null -> 0.0
-            is ComputedValue.Text -> 0.0
-            is ComputedValue.Number -> value.number
-            is ComputedValue.Reference -> 0.0
-            is ComputedValue.ReferenceRange -> 0.0
-            is ComputedValue.Error -> return value
-        }
-
-        val right = when (val value = resolve(arguments[1], references)) {
-            null -> 0.0
-            is ComputedValue.Text -> 0.0
-            is ComputedValue.Number -> value.number
-            is ComputedValue.Reference -> 0.0
-            is ComputedValue.ReferenceRange -> 0.0
-            is ComputedValue.Error -> return value
-        }
+        val left = number(arguments[0].dereference(references)) ?: return arguments[0]
+        val right = number(arguments[1].dereference(references)) ?: return arguments[1]
 
         return compute(left, right)
     }

@@ -5,19 +5,13 @@ import de.krall.spreadsheets.value.formula.ReferenceResolver
 
 object SumFunction : AbstractFunction() {
 
-    override fun call(arguments: List<ComputedValue?>, references: ReferenceResolver): ComputedValue {
+    override fun call(arguments: List<ComputedValue>, references: ReferenceResolver): ComputedValue {
         val values = arguments.asSequence()
-            .flatMap { resolveAll(it, references) }
+            .flatMap { it.dereferenceAll(references) }
 
         var sum = 0.0
         for (value in values) {
-            val number = when (value) {
-                is ComputedValue.Text -> 0.0
-                is ComputedValue.Number -> value.number
-                is ComputedValue.Reference -> 0.0
-                is ComputedValue.ReferenceRange -> 0.0
-                is ComputedValue.Error -> return value
-            }
+            val number = number(value) ?: return value
 
             sum += number
         }

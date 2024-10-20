@@ -386,7 +386,7 @@ private class SpreadsheetEngine(
 
         val computedValue = formula.compute(referenceResolver)
 
-        val evaluatedValue = computedValue?.toEvaluatedValue()
+        val evaluatedValue = computedValue.toEvaluatedValue()
         node.update(node.attributes.copy(evaluatedValue = evaluatedValue))
 
         notifyNodeChanged(node, nonStructural = true)
@@ -420,9 +420,10 @@ private class SpreadsheetEngine(
 
     private class DependencyReferenceResolver(val dependencies: List<Pair<Node, EvaluatedValue?>>) : ReferenceResolver {
 
-        override fun resolve(reference: Reference): ComputedValue? {
+        override fun resolve(reference: Reference): ComputedValue {
             return dependencies.find { (node, _) -> reference.cell.contains(node.column, node.row) }
                 ?.let { (_, value) -> value?.toComputedValue() }
+                ?: ComputedValue.Blank
         }
 
         override fun resolve(referenceRange: ReferenceRange): Collection<ComputedValue> {
@@ -487,8 +488,9 @@ private fun EvaluatedValue.toComputedValue(): ComputedValue {
     }
 }
 
-private fun ComputedValue.toEvaluatedValue(): EvaluatedValue {
+private fun ComputedValue.toEvaluatedValue(): EvaluatedValue? {
     return when (this) {
+        is ComputedValue.Blank -> null
         is ComputedValue.Text -> EvaluatedValue.Text(text)
         is ComputedValue.Number -> EvaluatedValue.Number(number)
         is ComputedValue.Reference -> EvaluatedValue.Text(reference.toString())

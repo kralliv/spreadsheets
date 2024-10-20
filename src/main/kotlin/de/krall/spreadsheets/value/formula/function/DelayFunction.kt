@@ -1,12 +1,17 @@
 package de.krall.spreadsheets.value.formula.function
 
 import de.krall.spreadsheets.value.ComputedValue
+import de.krall.spreadsheets.value.formula.ReferenceResolver
 
-object DelayFunction : UnaryOperatorFunction() {
+object DelayFunction : AbstractFunction() {
 
-    override fun compute(value: Double): ComputedValue? {
-        Thread.sleep(value.toLong())
+    override fun call(arguments: List<ComputedValue>, references: ReferenceResolver): ComputedValue {
+        assert(arguments.size == 1)
 
-        return null
+        val delay = number(arguments[0].dereference(references)) ?: return arguments[0]
+
+        Thread.sleep(delay.toLong())
+
+        return ComputedValue.Blank
     }
 }
