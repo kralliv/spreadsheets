@@ -2,12 +2,12 @@ package de.krall.spreadsheets.util
 
 import de.krall.spreadsheets.sheet.value.parser.Reader
 
-fun String.parseCsv(): List<List<String>> {
+fun String.parseCsv(separator: Char = ','): List<List<String>> {
     val lines = mutableListOf<List<String>>()
 
     val reader = Reader(this)
     while (!reader.isEof()) {
-        lines.add(readLine(reader))
+        lines.add(readLine(reader, separator))
 
         if (reader.c == '\n') {
             reader.nextChar()
@@ -17,25 +17,25 @@ fun String.parseCsv(): List<List<String>> {
     return lines
 }
 
-private fun readLine(reader: Reader): List<String> {
+private fun readLine(reader: Reader, separator: Char): List<String> {
     val values = mutableListOf<String>()
 
     var pending = true
     while (!reader.isEof() && reader.c != '\n') {
         pending = false
 
-        while (!reader.isEof() && reader.c.isWhitespace()) {
+        while (!reader.isEof() && reader.c.isWhitespace() && reader.c != separator && reader.c != '\n') {
             reader.nextChar()
         }
 
         val value = when (reader.c) {
-            '"' -> readEscapedValue(reader)
-            else -> readUnescapedValue(reader)
+            '"' -> readEscapedValue(reader, separator)
+            else -> readUnescapedValue(reader, separator)
         }
 
         values.add(value)
 
-        if (reader.c == ',') {
+        if (reader.c == separator) {
             pending = true
             reader.nextChar()
         }
@@ -48,17 +48,17 @@ private fun readLine(reader: Reader): List<String> {
     return values
 }
 
-private fun readUnescapedValue(reader: Reader): String {
+private fun readUnescapedValue(reader: Reader, separator: Char): String {
     while (!reader.isEof()) {
         when (reader.c) {
-            ',', '\n' -> break
+            separator, '\n' -> break
             else -> reader.putChar()
         }
     }
     return reader.chars().trim()
 }
 
-private fun readEscapedValue(reader: Reader): String {
+private fun readEscapedValue(reader: Reader, separator: Char): String {
     assert(reader.c == '"')
 
     reader.nextChar()
@@ -80,7 +80,7 @@ private fun readEscapedValue(reader: Reader): String {
     // skip misplaced characters outside of escape
     while (!reader.isEof()) {
         when (reader.c) {
-            ',', '\n' -> break
+            separator, '\n' -> break
             else -> reader.nextChar()
         }
     }

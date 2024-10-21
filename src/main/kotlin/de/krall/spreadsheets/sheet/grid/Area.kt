@@ -1,4 +1,4 @@
-package de.krall.spreadsheets.grid
+package de.krall.spreadsheets.sheet.grid
 
 
 interface Area {

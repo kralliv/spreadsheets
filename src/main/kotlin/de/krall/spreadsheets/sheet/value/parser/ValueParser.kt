@@ -20,7 +20,7 @@ class ValueParser {
 
         val input = Segment(value)
         val lexer = SlLexer(input)
-        val parser = SimpleParser(lexer, context)
+        val parser = SlParser(lexer, context)
 
         return parser.parseValue()
     }

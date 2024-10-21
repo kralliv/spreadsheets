@@ -1,4 +1,4 @@
-package de.krall.spreadsheets.ui
+package de.krall.spreadsheets.ui.env
 
 import fernice.reflare.CSSEngine
 import fernice.reflare.FlareLookAndFeel

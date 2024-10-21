@@ -11,8 +11,3 @@ class Formula(val expression: Expression, val references: List<Referencing>) {
         return expression.compute(references)
     }
 }
-
-interface ReferenceResolver {
-    fun resolve(reference: Reference): ComputedValue
-    fun resolve(referenceRange: ReferenceRange): Collection<ComputedValue>
-}

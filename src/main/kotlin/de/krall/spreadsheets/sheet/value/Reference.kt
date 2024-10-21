@@ -1,10 +1,10 @@
 package de.krall.spreadsheets.sheet.value
 
-import de.krall.spreadsheets.grid.Area
-import de.krall.spreadsheets.grid.Cell
-import de.krall.spreadsheets.grid.Column
-import de.krall.spreadsheets.grid.Rectangle
-import de.krall.spreadsheets.grid.Row
+import de.krall.spreadsheets.sheet.grid.Area
+import de.krall.spreadsheets.sheet.grid.Cell
+import de.krall.spreadsheets.sheet.grid.Column
+import de.krall.spreadsheets.sheet.grid.Rectangle
+import de.krall.spreadsheets.sheet.grid.Row
 
 sealed interface Referencing
 

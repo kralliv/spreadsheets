@@ -1,6 +1,6 @@
 package de.krall.spreadsheets.ui.components.table
 
-import de.krall.spreadsheets.ui.OS
+import de.krall.spreadsheets.ui.env.OS
 import de.krall.spreadsheets.ui.event.Conditions
 import de.krall.spreadsheets.ui.event.KeyStroke
 import de.krall.spreadsheets.ui.event.registerKeyboardAction
@@ -17,7 +17,10 @@ import javax.swing.SwingUtilities
 import javax.swing.plaf.TableUI
 import javax.swing.plaf.UIResource
 
-private val IGNORABLE_KEY_CODES = setOf(KeyEvent.VK_UNDEFINED, KeyEvent.VK_ESCAPE, KeyEvent.VK_ENTER, KeyEvent.VK_CAPS_LOCK, KeyEvent.VK_BACK_SPACE)
+private val IGNORABLE_KEY_CODES = setOf(
+    KeyEvent.VK_UNDEFINED, KeyEvent.VK_SHIFT, KeyEvent.VK_CONTROL, KeyEvent.VK_ALT, KeyEvent.VK_META,
+    KeyEvent.VK_ALT_GRAPH, KeyEvent.VK_ESCAPE, KeyEvent.VK_ENTER, KeyEvent.VK_CAPS_LOCK, KeyEvent.VK_BACK_SPACE
+)
 
 open class STable : JXTable() {
 
@@ -134,14 +137,6 @@ open class STable : JXTable() {
     private fun installActions() {
         registerKeyboardAction(KeyStroke("ENTER"), Conditions.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, editAction("selectNextRowCell"))
         registerKeyboardAction(KeyStroke("shift ENTER"), Conditions.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, editAction("selectPreviousRowCell"))
-        registerKeyboardAction(KeyStroke("BACK_SPACE"), Conditions.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT) {
-            val model = model
-            selectedRows.forEach { row ->
-                selectedColumns.forEach { column ->
-                    model.setValueAt(null, row, column)
-                }
-            }
-        }
     }
 
     private fun editAction(successorAction: String): ActionListener {
@@ -183,7 +178,7 @@ open class STable : JXTable() {
             val binding = map.get(ks)
             val action = binding?.let { am.get(it) }
             if (action != null) {
-                return SwingUtilities.notifyAction(action, ks, e, this, e.getModifiers())
+                return SwingUtilities.notifyAction(action, ks, e, this, e.modifiersEx)
             }
         }
         return false

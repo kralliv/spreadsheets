@@ -1,5 +1,6 @@
 package de.krall.spreadsheets.sheet.value.parser
 
+import de.krall.spreadsheets.sheet.value.Value
 import de.krall.spreadsheets.sheet.value.parser.diagnotic.Diagnostics
 import de.krall.spreadsheets.sheet.value.parser.tree.SlBinaryExpression
 import de.krall.spreadsheets.sheet.value.parser.tree.SlExpression
@@ -41,6 +42,52 @@ private val PARENTHESIZED_RECOVERY_SET = TokenTypeSet.of(TokenType.RPAREN)
 private val FUNCTION_CALL_RECOVERY_SET = TokenTypeSet.of(TokenType.COMMA, TokenType.RPAREN)
 
 class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractParser(tokens, context) {
+
+    // Value
+
+    fun parseValue(): Value {
+        return when {
+            at(TokenType.EQ) -> parseFormulaValue()
+            isAtNumberStatement() -> parseNumberValue()
+            else -> parseTextValue()
+        }
+    }
+
+    private fun parseFormulaValue(): Value.Formula {
+        assert(at(TokenType.EQ))
+
+        advance() // EQ
+
+        val span = span()
+
+        while (!eof()) {
+            advance()
+        }
+
+        val source = span.finish()
+
+        return Value.Formula(source.text)
+    }
+
+    private fun parseNumberValue(): Value.Number {
+        val statement = parseNumberStatement()
+
+        return Value.Number(statement.number)
+    }
+
+    private fun parseTextValue(): Value.Text {
+        val span = span()
+
+        while (!eof()) {
+            advance()
+        }
+
+        val source = span.finish()
+
+        return Value.Text(source.text)
+    }
+
+    // Statement
 
     fun parseStatement(): SlStatement {
         return when {
@@ -114,6 +161,8 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
 
         return SlTextStatement(source.text, source)
     }
+
+    // Formula
 
     fun parseFormula(): SlExpression {
         return if (expect(EXPRESSION_START, Diagnostics.EXPECTED_EXPRESSION)) {

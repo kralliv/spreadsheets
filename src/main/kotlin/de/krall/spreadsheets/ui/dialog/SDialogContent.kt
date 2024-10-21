@@ -1,6 +1,6 @@
 package de.krall.spreadsheets.ui.dialog
 
-import de.krall.spreadsheets.ui.OS
+import de.krall.spreadsheets.ui.env.OS
 import de.krall.spreadsheets.ui.action.SAction
 import de.krall.spreadsheets.ui.action.isDefaultAction
 import de.krall.spreadsheets.ui.components.SButton

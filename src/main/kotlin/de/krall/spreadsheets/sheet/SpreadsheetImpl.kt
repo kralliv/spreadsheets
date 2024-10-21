@@ -1,6 +1,6 @@
 package de.krall.spreadsheets.sheet
 
-import de.krall.spreadsheets.grid.SparseGrid
+import de.krall.spreadsheets.sheet.grid.SparseGrid
 import de.krall.spreadsheets.util.empty
 import de.krall.spreadsheets.sheet.value.ComputationError
 import de.krall.spreadsheets.sheet.value.ComputedValue

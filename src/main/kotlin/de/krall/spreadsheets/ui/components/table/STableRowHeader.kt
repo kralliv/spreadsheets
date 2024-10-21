@@ -64,7 +64,6 @@ class STableRowHeader : JList<Any>() {
             }
         }
 
-    private var selectionChanging = false
     var tableSelectionModel: ListSelectionModel? = null
         private set(tableSelectionModel) {
             val previousTableSelectionModel = field
@@ -92,6 +91,38 @@ class STableRowHeader : JList<Any>() {
         fixedCellWidth = 60
         model = RowListModel(0)
 
+        installSelectionHandler()
+    }
+
+    private fun updateTableModel() {
+        tableModel = table?.model
+    }
+
+    private fun updateRowCount() {
+        model = RowListModel(tableModel?.rowCount ?: 0)
+    }
+
+    private fun updateSelectionModel() {
+        tableSelectionModel = table?.selectionModel
+    }
+
+    private fun updateSelection() {
+        val tableSelectionModel = tableSelectionModel
+        if (tableSelectionModel != null && tableSelectionModel.selectionMode != selectionModel.selectionMode) {
+            selectionModel.selectionMode = tableSelectionModel.selectionMode
+        }
+
+        selectionModel.clearSelection()
+        tableSelectionModel?.selectedIndices?.forEach { index ->
+            selectionModel.addSelectionInterval(index, index)
+        }
+    }
+
+    private fun updateRowHeight() {
+        fixedCellHeight = table?.rowHeight ?: 22
+    }
+
+    private fun installSelectionHandler() {
         val mouseHandler = object : MouseAdapter() {
             private var startIndex = -1
 
@@ -126,61 +157,14 @@ class STableRowHeader : JList<Any>() {
                     val columnSelectionModel = table.columnModel.selectionModel
 
                     columnSelectionModel.addSelectionInterval(table.columnCount, 0)
+
+                    e.consume()
                 }
             }
         }
 
         addMouseListener(mouseHandler)
         addMouseMotionListener(mouseHandler)
-    }
-
-    private fun updateTableModel() {
-        tableModel = table?.model
-    }
-
-    private fun updateRowCount() {
-        model = RowListModel(tableModel?.rowCount ?: 0)
-    }
-
-    private fun updateSelectionModel() {
-        tableSelectionModel = table?.selectionModel
-    }
-
-    private fun updateSelection() {
-        withSelectionChanging {
-            val tableSelectionModel = tableSelectionModel
-            if (tableSelectionModel != null && tableSelectionModel.selectionMode != selectionModel.selectionMode) {
-                selectionModel.selectionMode = tableSelectionModel.selectionMode
-            }
-
-            if (tableSelectionModel != null) {
-                tableSelectionModel.copyTo(selectionModel)
-            } else {
-                selectionModel.clearSelection()
-            }
-        }
-    }
-
-    private inline fun withSelectionChanging(block: () -> Unit) {
-        if (selectionChanging) return
-        selectionChanging = true
-        try {
-            block()
-        } finally {
-            selectionChanging = false
-        }
-    }
-
-    private fun ListSelectionModel.copyTo(other: ListSelectionModel) {
-        other.clearSelection()
-
-        selectedIndices.forEach { index ->
-            other.addSelectionInterval(index, index)
-        }
-    }
-
-    private fun updateRowHeight() {
-        fixedCellHeight = table?.rowHeight ?: 22
     }
 
     private inner class TableCellRendererAdapter(private val tableCellRenderer: TableCellRenderer) : ListCellRenderer<Any> {

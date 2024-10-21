@@ -5,9 +5,12 @@ import de.krall.spreadsheets.sheet.value.EvaluatedValue
 import de.krall.spreadsheets.sheet.value.Value
 import java.util.concurrent.CopyOnWriteArrayList
 
-class HistoryAwareSpreadsheet(private val delegate: Spreadsheet) : Spreadsheet {
+class HistoryAwareSpreadsheet(
+    private val delegate: Spreadsheet,
+    private val limit: Int = 250,
+) : Spreadsheet {
 
-    private val changes = mutableListOf<Change>()
+    private val changes = ArrayDeque<Change>()
     private var index = -1
 
     private var accumulate = false
@@ -53,8 +56,16 @@ class HistoryAwareSpreadsheet(private val delegate: Spreadsheet) : Spreadsheet {
     }
 
     private fun commitChange(change: Change) {
+        // Cull the undone changes first before trimming
+        // to maybe make space for a new change.
         if (changes.lastIndex > index) {
             changes.subList(index + 1, changes.size).clear()
+        }
+
+        // index is now pointing at the last element
+        while (changes.size >= limit) {
+            changes.removeFirst()
+            index--
         }
 
         changes.add(change)

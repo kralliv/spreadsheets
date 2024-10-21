@@ -29,6 +29,6 @@ object BuiltIns {
         FunctionDefinition("divide", fixed(AnySingular, AnySingular), Number, DivideFunction),
         FunctionDefinition("modulo", fixed(AnySingular, AnySingular), Number, ModuloFunction),
         FunctionDefinition("negate", fixed(AnySingular, AnySingular), Number, NegateFunction),
-        FunctionDefinition("delay", fixed(Number), Nothing, DelayFunction),
+        FunctionDefinition("delay", fixed(Number), Number, DelayFunction),
     )
 }

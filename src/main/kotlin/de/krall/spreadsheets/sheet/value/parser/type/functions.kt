@@ -2,14 +2,6 @@ package de.krall.spreadsheets.sheet.value.parser.type
 
 import de.krall.spreadsheets.sheet.value.formula.function.Function
 
-internal fun fixed(vararg type: Type): ParameterTypes {
-    return ParameterTypes(type.toList(), variadic = null)
-}
-
-internal fun variadic(type: Type): ParameterTypes {
-    return ParameterTypes(fixed = listOf(), variadic = type)
-}
-
 class FunctionDefinition(
     val name: String,
     val parameterTypes: ParameterTypes,
@@ -40,4 +32,12 @@ data class ParameterTypes(
             append("...")
         }
     }
+}
+
+internal fun fixed(vararg type: Type): ParameterTypes {
+    return ParameterTypes(type.toList(), variadic = null)
+}
+
+internal fun variadic(type: Type): ParameterTypes {
+    return ParameterTypes(fixed = listOf(), variadic = type)
 }

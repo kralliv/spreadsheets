@@ -1,9 +1,9 @@
 package de.krall.spreadsheets.sheet.value.parser.analysis
 
-import de.krall.spreadsheets.grid.Cell
-import de.krall.spreadsheets.grid.Column
-import de.krall.spreadsheets.grid.Rectangle
-import de.krall.spreadsheets.grid.Row
+import de.krall.spreadsheets.sheet.grid.Cell
+import de.krall.spreadsheets.sheet.grid.Column
+import de.krall.spreadsheets.sheet.grid.Rectangle
+import de.krall.spreadsheets.sheet.grid.Row
 import de.krall.spreadsheets.sheet.value.Reference
 import de.krall.spreadsheets.sheet.value.ReferenceRange
 import de.krall.spreadsheets.sheet.value.parser.ProcessingContext

@@ -15,7 +15,7 @@ import java.util.Locale
 import javax.swing.ToolTipManager
 import javax.swing.text.DefaultFormatterFactory
 
-class ValueField(val parser: ValueParser) : SFormattedTextField() {
+open class ValueField(val parser: ValueParser) : SFormattedTextField() {
 
     private val diagnosticHighlighter = DiagnosticHighlighter()
 

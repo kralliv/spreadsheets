@@ -43,7 +43,8 @@ class InsertRowsColumnsDialog(axis: Axis) : SResultDialogContent<Int>() {
     }
 
     private fun updateActionState() {
-        positiveAction?.isEnabled = numberField.value != null
+        val value = numberField.value
+        positiveAction?.isEnabled = value != null && value in 0..1000
     }
 
     override fun doPositiveAction() {

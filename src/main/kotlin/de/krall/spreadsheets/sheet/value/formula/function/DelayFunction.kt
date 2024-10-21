@@ -12,7 +12,7 @@ object DelayFunction : AbstractFunction() {
 
         Thread.sleep(delay.toLong())
 
-        return ComputedValue.Blank
+        return ComputedValue.Number(delay)
     }
 
     override fun toString(): String = "DELAY"

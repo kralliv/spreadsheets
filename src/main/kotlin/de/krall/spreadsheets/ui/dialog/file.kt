@@ -1,6 +1,7 @@
-package de.krall.spreadsheets.ui.file
+package de.krall.spreadsheets.ui.dialog
 
-import de.krall.spreadsheets.ui.OS
+import de.krall.spreadsheets.ui.env.OS
+import de.krall.spreadsheets.ui.env.Session
 import de.krall.spreadsheets.ui.util.window
 import java.awt.Component
 import java.awt.FileDialog
@@ -8,24 +9,24 @@ import java.awt.Frame
 import java.io.File
 import javax.swing.JFileChooser
 
-object FileChoosers {
+object FileDialogs {
 
-    fun showFileChooser(invoker: Component?, title: String? = null, initial: File? = null): File? {
-        return when {
-            OS.isWindows -> {
-                try {
-                    showAwtFileChooser(invoker, title, initial)
-                } catch (ignore: Throwable) {
-                    showSwingFileChooser(invoker, title, initial)
-                }
-            }
-
-            OS.isMac -> showAwtFileChooser(invoker, title, initial)
-            else -> showSwingFileChooser(invoker, title, initial)
+    fun selectFile(
+        invoker: Component?,
+        title: String? = null,
+        initial: File? = Session.lastDirectory.toFile(),
+    ): File? {
+        val file = when {
+            OS.isMac -> selectFileAwt(invoker, title, initial)
+            else -> selectFileSwing(invoker, title, initial)
         }
+        if (file != null && file.parentFile != null) {
+            Session.lastDirectory = file.parentFile.toPath()
+        }
+        return file
     }
 
-    private fun showAwtFileChooser(invoker: Component?, title: String?, initial: File?): File? {
+    private fun selectFileAwt(invoker: Component?, title: String?, initial: File?): File? {
         val frame = invoker?.ownerFrame
 
         val fd = FileDialog(frame, title ?: "", FileDialog.LOAD)
@@ -39,7 +40,7 @@ object FileChoosers {
         }
     }
 
-    private fun showSwingFileChooser(invoker: Component?, title: String?, initial: File?): File? {
+    private fun selectFileSwing(invoker: Component?, title: String?, initial: File?): File? {
         val frame = invoker?.ownerFrame
 
         val fileChooser = JFileChooser(initial)
@@ -52,22 +53,22 @@ object FileChoosers {
         }
     }
 
-    fun showDirectoryChooser(invoker: Component?, title: String? = null, initial: File? = null): File? {
-        return when {
-            OS.isWindows -> {
-                try {
-                    showAwtDirectoryChooser(invoker, title, initial)
-                } catch (ignore: Throwable) {
-                    showSwingDirectoryChooser(invoker, title, initial)
-                }
-            }
-
-            OS.isMac -> showAwtDirectoryChooser(invoker, title, initial)
-            else -> showSwingDirectoryChooser(invoker, title, initial)
+    fun selectDirectory(
+        invoker: Component?,
+        title: String? = null,
+        initial: File? = Session.lastDirectory.toFile(),
+    ): File? {
+        val file = when {
+            OS.isMac -> selectDirectoryAwt(invoker, title, initial)
+            else -> selectDirectorySwing(invoker, title, initial)
         }
+        if (file != null) {
+            Session.lastDirectory = file.toPath()
+        }
+        return file
     }
 
-    private fun showAwtDirectoryChooser(invoker: Component?, title: String?, initial: File?): File? {
+    private fun selectDirectoryAwt(invoker: Component?, title: String?, initial: File?): File? {
         val frame = invoker?.ownerFrame
 
         val fd = FileDialog(frame, title ?: "", FileDialog.LOAD)
@@ -86,7 +87,7 @@ object FileChoosers {
         }
     }
 
-    private fun showSwingDirectoryChooser(invoker: Component?, title: String?, initial: File?): File? {
+    private fun selectDirectorySwing(invoker: Component?, title: String?, initial: File?): File? {
         val frame = invoker?.ownerFrame
 
         val chooser = JFileChooser(initial)

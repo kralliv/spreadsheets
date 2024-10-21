@@ -27,12 +27,14 @@ class SpreadsheetTableModel(val spreadsheet: Spreadsheet) : AbstractTableModel()
     override fun getColumnCount(): Int = columnCount
 
     fun addRows(count: Int) {
+        require(count > 0) { "count must be positive" }
         val previousRowCount = rowCount
         rowCount += count
         fireTableRowsInserted(previousRowCount, rowCount - 1)
     }
 
     fun addColumns(count: Int) {
+        require(count > 0) { "count must be positive" }
         columnCount += count
         fireTableStructureChanged()
     }

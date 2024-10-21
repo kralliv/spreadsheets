@@ -1,6 +1,6 @@
 package de.krall.spreadsheets.ui.event
 
-import de.krall.spreadsheets.ui.OS
+import de.krall.spreadsheets.ui.env.OS
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import javax.swing.AbstractAction

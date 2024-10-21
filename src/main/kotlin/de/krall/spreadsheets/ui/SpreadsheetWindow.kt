@@ -10,6 +10,7 @@ import de.krall.spreadsheets.ui.dialog.DialogTemplate
 import de.krall.spreadsheets.ui.dialog.SDialogContent
 import de.krall.spreadsheets.ui.dialog.SMessageDialog
 import de.krall.spreadsheets.sheet.value.parser.ValueParser
+import de.krall.spreadsheets.ui.env.OS
 import fernice.reflare.classes
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.BorderLayout
@@ -23,6 +24,7 @@ import kotlin.io.path.outputStream
 class SpreadsheetWindow(
     spreadsheetManager: SpreadsheetManager,
     private val spreadsheet: Spreadsheet,
+    parser: ValueParser,
     file: Path?,
 ) : JFrame() {
 
@@ -48,8 +50,6 @@ class SpreadsheetWindow(
 
         size = Dimension(1200, 720)
         setLocationRelativeTo(null)
-
-        val parser = ValueParser()
 
         table = SpreadsheetTable(spreadsheet, parser)
 

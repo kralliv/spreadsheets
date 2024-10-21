@@ -15,12 +15,16 @@ import de.krall.spreadsheets.ui.components.table.STable
 import de.krall.spreadsheets.ui.util.invokeLater
 import de.krall.spreadsheets.sheet.value.Value
 import de.krall.spreadsheets.sheet.value.parser.ValueParser
+import de.krall.spreadsheets.ui.event.Conditions
+import de.krall.spreadsheets.ui.event.KeyStroke
+import de.krall.spreadsheets.ui.event.registerKeyboardAction
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.DataFlavor
 import javax.swing.JComponent
 import javax.swing.TransferHandler
 import javax.swing.event.ListSelectionEvent
 import javax.swing.event.ListSelectionListener
+import javax.swing.table.TableColumn
 
 class SpreadsheetTable(spreadsheet: Spreadsheet, val parser: ValueParser) : STable() {
 
@@ -37,39 +41,16 @@ class SpreadsheetTable(spreadsheet: Spreadsheet, val parser: ValueParser) : STab
         tableHeader.reorderingAllowed = false
 
         model = SpreadsheetTableModel(this.spreadsheet)
-
-        this.spreadsheet.addListener(object : SpreadsheetListener {
-            override fun cellChanged(cell: Cell, previousCell: Cell) {
-                // Cell will also be updated
-            }
-
-            override fun cellUpdated(cell: Cell) {
-                invokeLater { repaint() }
-            }
-        })
+        transferHandler = SpreadsheetTransferHandler()
 
         tableHeader?.defaultRenderer = HeaderCellRenderer()
         tableRowHeader?.defaultRenderer = RowHeaderCellRenderer()
 
-        for (index in 0..<model.columnCount) {
-            getColumn(index).preferredWidth = 100
-        }
-
         setDefaultRenderer(Value::class.java, ValueCellRenderer(this.spreadsheet))
         setDefaultEditor(Value::class.java, ValueCellEditor(parser))
 
-        columnModel.selectionModel.addListSelectionListener(object : ListSelectionListener {
-            override fun valueChanged(e: ListSelectionEvent) {
-                val tableHeader = tableHeader
-
-                val first = tableHeader.getHeaderRect(e.firstIndex)
-                val last = tableHeader.getHeaderRect(e.lastIndex)
-
-                tableHeader.repaint(first.union(last))
-            }
-        })
-
-        transferHandler = SpreadsheetTransferHandler()
+        installKeyboardActions()
+        installRepaintHandling()
     }
 
     fun undo() {
@@ -86,6 +67,46 @@ class SpreadsheetTable(spreadsheet: Spreadsheet, val parser: ValueParser) : STab
 
     fun addColumns(count: Int) {
         spreadsheetModel.addColumns(count)
+    }
+
+    override fun initializeColumnPreferredWidth(column: TableColumn) {
+        column.preferredWidth = 100
+    }
+
+    private fun installKeyboardActions() {
+        registerKeyboardAction(KeyStroke("BACK_SPACE"), Conditions.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT) {
+            val model = model
+            spreadsheet.compositeChange {
+                selectedRows.forEach { row ->
+                    selectedColumns.forEach { column ->
+                        model.setValueAt(null, row, column)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun installRepaintHandling() {
+        spreadsheet.addListener(object : SpreadsheetListener {
+            override fun cellChanged(cell: Cell, previousCell: Cell) {
+                // Cell will also be updated
+            }
+
+            override fun cellUpdated(cell: Cell) {
+                invokeLater { repaint() }
+            }
+        })
+
+        columnModel.selectionModel.addListSelectionListener(object : ListSelectionListener {
+            override fun valueChanged(e: ListSelectionEvent) {
+                val tableHeader = tableHeader
+
+                val first = tableHeader.getHeaderRect(e.firstIndex)
+                val last = tableHeader.getHeaderRect(e.lastIndex)
+
+                tableHeader.repaint(first.union(last))
+            }
+        })
     }
 
     private inner class SpreadsheetTransferHandler : TransferHandler() {

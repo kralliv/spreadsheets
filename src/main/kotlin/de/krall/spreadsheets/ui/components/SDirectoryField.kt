@@ -2,7 +2,8 @@ package de.krall.spreadsheets.ui.components
 
 import de.krall.spreadsheets.ui.event.KeyStroke
 import de.krall.spreadsheets.ui.event.registerKeyboardAction
-import de.krall.spreadsheets.ui.file.FileChoosers
+import de.krall.spreadsheets.ui.dialog.FileDialogs
+import de.krall.spreadsheets.ui.env.Session
 import de.krall.spreadsheets.ui.icon.Icons
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.Path
@@ -20,11 +21,11 @@ class SDirectoryField : SFormattedTextField() {
 
         installKeyboardActions()
 
-        value = Path(System.getProperty("user.home"))
+        value = Session.lastDirectory
     }
 
     private fun pickDirectory() {
-        val file = FileChoosers.showDirectoryChooser(this, initial = value?.toFile())
+        val file = FileDialogs.selectDirectory(this, initial = value?.toFile())
         if (file != null) {
             value = file.toPath()
         }

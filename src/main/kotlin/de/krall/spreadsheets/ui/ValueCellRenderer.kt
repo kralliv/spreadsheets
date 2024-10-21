@@ -1,12 +1,12 @@
 package de.krall.spreadsheets.ui
 
 import de.krall.spreadsheets.sheet.Spreadsheet
-import de.krall.spreadsheets.ui.components.SRendererLabel
-import de.krall.spreadsheets.ui.render.StringRenderable
-import de.krall.spreadsheets.ui.util.useGraphics2D
 import de.krall.spreadsheets.sheet.value.ComputationError
 import de.krall.spreadsheets.sheet.value.EvaluatedValue
+import de.krall.spreadsheets.ui.components.SRendererLabel
+import de.krall.spreadsheets.ui.render.StringRenderable
 import fernice.reflare.classes
+import org.fernice.reflare.render.use
 import java.awt.Color
 import java.awt.Component
 import java.awt.Graphics
@@ -88,7 +88,7 @@ class ValueCellRenderer(val spreadsheet: Spreadsheet) : SRendererLabel(), TableC
         super.paintComponent(g)
 
         if (isErroneous) {
-            g.useGraphics2D { g2 ->
+            g.use { g2 ->
                 g2.color = Color.RED
                 g2.fill(createCorner())
             }

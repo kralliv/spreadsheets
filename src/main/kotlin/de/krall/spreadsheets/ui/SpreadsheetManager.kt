@@ -2,9 +2,9 @@ package de.krall.spreadsheets.ui
 
 import de.krall.spreadsheets.sheet.SpreadsheetImpl
 import de.krall.spreadsheets.sheet.io.readFrom
-import de.krall.spreadsheets.ui.dialog.SMessageDialog
-import de.krall.spreadsheets.ui.file.FileChoosers
 import de.krall.spreadsheets.sheet.value.parser.ValueParser
+import de.krall.spreadsheets.ui.dialog.FileDialogs
+import de.krall.spreadsheets.ui.dialog.SMessageDialog
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.Component
 import java.awt.Desktop
@@ -23,7 +23,7 @@ class SpreadsheetManager {
     fun createSpreadsheet() {
         val spreadsheet = SpreadsheetImpl(parser)
 
-        val window = SpreadsheetWindow(this, spreadsheet, file = null)
+        val window = SpreadsheetWindow(this, spreadsheet, parser, file = null)
 
         show(window)
     }
@@ -41,7 +41,7 @@ class SpreadsheetManager {
             return
         }
 
-        val window = SpreadsheetWindow(this, spreadsheet, file)
+        val window = SpreadsheetWindow(this, spreadsheet, parser, file)
 
         show(window)
     }
@@ -86,7 +86,7 @@ class SpreadsheetManager {
 }
 
 fun SpreadsheetManager.chooseSpreadsheet(invoker: Component?) {
-    val file = FileChoosers.showFileChooser(invoker)
+    val file = FileDialogs.selectFile(invoker)
     if (file != null) {
         openSpreadsheet(file.toPath())
     }

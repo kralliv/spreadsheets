@@ -2,8 +2,8 @@ package de.krall.spreadsheets.ui
 
 import de.krall.spreadsheets.sheet.value.parser.ValueParser
 import de.krall.spreadsheets.ui.components.SButton
+import de.krall.spreadsheets.ui.env.initializeGraphicalEnvironment
 import java.awt.Dimension
-import javax.swing.JButton
 import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.JTextField
