@@ -411,7 +411,12 @@ private class SpreadsheetEngine(
 
         val referenceResolver = DependencyReferenceResolver(dependencies)
 
-        val computedValue = formula.compute(referenceResolver)
+        val computedValue = try {
+            formula.compute(referenceResolver)
+        } catch (throwable: Throwable) {
+            LOG.error(throwable) { "evaluation resulted in exception: ${node.attributes.value}" }
+            ComputedValue.Error(ComputationError.Error)
+        }
 
         val evaluatedValue = computedValue.toEvaluatedValue()
         node.update(node.attributes.copy(evaluatedValue = evaluatedValue))

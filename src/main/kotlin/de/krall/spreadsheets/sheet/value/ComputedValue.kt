@@ -13,4 +13,5 @@ sealed class ComputationError {
     data object BadFormula : ComputationError()
     data object CircularDependency : ComputationError()
     data object DivisionByZero : ComputationError()
+    data object Error : ComputationError()
 }

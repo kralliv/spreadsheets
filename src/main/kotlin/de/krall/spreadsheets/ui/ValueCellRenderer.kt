@@ -16,7 +16,6 @@ import java.awt.event.MouseEvent
 import java.awt.geom.Path2D
 import java.text.DecimalFormat
 import javax.swing.JTable
-import javax.swing.SwingConstants
 import javax.swing.table.TableCellRenderer
 
 class ValueCellRenderer(val spreadsheet: Spreadsheet) : SRendererLabel(), TableCellRenderer, StringRenderable {
@@ -52,12 +51,13 @@ class ValueCellRenderer(val spreadsheet: Spreadsheet) : SRendererLabel(), TableC
                 is ComputationError.BadFormula -> "#INVALID"
                 is ComputationError.CircularDependency -> "#REF"
                 is ComputationError.DivisionByZero -> "#DIV/0"
+                is ComputationError.Error -> "#ERROR"
             }
         }
 
         horizontalAlignment = when (evaluatedValue) {
-            is EvaluatedValue.Number -> SwingConstants.RIGHT
-            else -> SwingConstants.LEADING
+            is EvaluatedValue.Number -> RIGHT
+            else -> LEADING
         }
 
         isErroneous = when (evaluatedValue) {
@@ -74,6 +74,7 @@ class ValueCellRenderer(val spreadsheet: Spreadsheet) : SRendererLabel(), TableC
                 is ComputationError.BadFormula -> "The entered formula is invalid."
                 is ComputationError.CircularDependency -> "There are circular dependencies. Formulas must not reference each other."
                 is ComputationError.DivisionByZero -> "The evaluation encountered a division by zero."
+                is ComputationError.Error -> "The evaluation encountered an error."
             }
         }
 
