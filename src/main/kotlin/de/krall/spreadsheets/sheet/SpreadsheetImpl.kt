@@ -1,7 +1,6 @@
 package de.krall.spreadsheets.sheet
 
 import de.krall.spreadsheets.sheet.grid.SparseGrid
-import de.krall.spreadsheets.util.empty
 import de.krall.spreadsheets.sheet.value.ComputationError
 import de.krall.spreadsheets.sheet.value.ComputedValue
 import de.krall.spreadsheets.sheet.value.EvaluatedValue
@@ -13,11 +12,14 @@ import de.krall.spreadsheets.sheet.value.Value
 import de.krall.spreadsheets.sheet.value.formula.Formula
 import de.krall.spreadsheets.sheet.value.formula.ReferenceResolver
 import de.krall.spreadsheets.sheet.value.parser.ValueParser
+import de.krall.spreadsheets.util.empty
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.Closeable
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.thread
@@ -147,12 +149,6 @@ private class SpreadsheetEngine(
             }
         }
 
-        fun removeDependent(node: Node) {
-            if (dependents.remove(node)) {
-                node.dependencies.remove(this)
-            }
-        }
-
         fun clearDependents(): Collection<Node> {
             val dependent = dependents.empty()
             for (node in dependent) {
@@ -210,6 +206,7 @@ private class SpreadsheetEngine(
     }
 
     private val closed = AtomicBoolean(false)
+    private val writeRequest = AtomicReference<CountDownLatch>()
     private val lock = ReentrantReadWriteLock()
 
     private val grid = SparseGrid<Node>()
@@ -221,7 +218,8 @@ private class SpreadsheetEngine(
             try {
                 val node = evaluationQueue.take()
 
-                lock.read {
+                val reschedule = { requestEvaluation(node) }
+                work(reschedule) {
                     evaluateNode(node)
                 }
             } catch (ignore: InterruptedException) {
@@ -255,7 +253,7 @@ private class SpreadsheetEngine(
         return node?.attributes ?: CellAttributes.Blank
     }
 
-    fun write(column: Int, row: Int, mutation: (CellAttributes) -> CellAttributes) = lock.write {
+    fun write(column: Int, row: Int, mutation: (CellAttributes) -> CellAttributes) = write {
         checkNotClosed()
 
         val node = grid[column, row]
@@ -401,11 +399,15 @@ private class SpreadsheetEngine(
         establishDependencies(node, formula)
 
         val dependencies = node.dependencies.map { dependencyNode ->
+            checkWriteRequest()
+
             ancestors.add(node)
             val result = evaluateNode(dependencyNode, ancestors)
             ancestors.remove(node)
             dependencyNode to result
         }
+
+        checkWriteRequest()
 
         val referenceResolver = DependencyReferenceResolver(dependencies)
 
@@ -484,6 +486,46 @@ private class SpreadsheetEngine(
         evaluationThread.interrupt()
         notifyThread.interrupt()
     }
+
+    private inline fun work(yield: () -> Unit, block: () -> Unit) {
+        awaitWriteRequest()
+        lock.read {
+            try {
+                block()
+            } catch (ignore: WriteRequestedException) {
+                yield()
+            }
+        }
+    }
+
+    private inline fun write(block: () -> Unit) {
+        requestWrite()
+        lock.write {
+            clearWriteRequest()
+
+            block()
+        }
+    }
+
+    private fun requestWrite() {
+        writeRequest.compareAndSet(null, CountDownLatch(1))
+    }
+
+    private fun clearWriteRequest() {
+        writeRequest.getAndSet(null)?.countDown()
+    }
+
+    private fun checkWriteRequest() {
+        if (writeRequest.get() != null) {
+            throw WriteRequestedException()
+        }
+    }
+
+    private fun awaitWriteRequest() {
+        writeRequest.get()?.await()
+    }
+
+    private class WriteRequestedException : RuntimeException()
 
     companion object {
         private val LOG = KotlinLogging.logger { }
