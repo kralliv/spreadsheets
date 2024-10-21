@@ -22,7 +22,7 @@ Start the main function in `de/krall/spreadsheets/main.kt` and try to enjoy the 
 - Try closing the window without saving
 - Save your spreadsheet
 - Load your spreadsheet
-- Try loading what ins't a spreadsheet
+- Try loading what isn't a spreadsheet
 - Open multiple spreadsheets
 - Open the sample spreadsheet
 - many more details...
