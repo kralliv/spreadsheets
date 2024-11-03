@@ -54,7 +54,7 @@ private class MapBaseSparseGrid<T> : SparseGrid<T> {
         return sequence {
             for ((location, value) in map) {
                 val x = (location and 0xFFFFFFFF).toInt()
-                val y = (location ushr 32).toInt()
+                val y = (location ushr 31).toInt()
                 if (!area.contains(x, y)) continue
                 yield(EntryImpl(x, y, value))
             }
@@ -64,16 +64,16 @@ private class MapBaseSparseGrid<T> : SparseGrid<T> {
     override val entries: Sequence<SparseGrid.Entry<T>>
         get() = map.asSequence().map { (location, value) ->
             val x = (location and 0xFFFFFFFF).toInt()
-            val y = (location ushr 32).toInt()
+            val y = (location ushr 31).toInt()
             EntryImpl(x, y, value)
         }
 
     private fun pack(x: Int, y: Int): Long {
-        return x.toLong() or (y.toLong() shl 32)
+        return x.toLong() or (y.toLong() shl 31)
     }
 
     private fun unpack(location: Long): Pair<Int, Int> {
-        return (location and 0xFFFFFFFF).toInt() to (location ushr 32).toInt()
+        return (location and 0xFFFFFFFF).toInt() to (location ushr 31).toInt()
     }
 
     private class EntryImpl<T>(

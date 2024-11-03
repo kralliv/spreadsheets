@@ -38,7 +38,7 @@ class ValueCellRenderer(val spreadsheet: Spreadsheet) : SRendererLabel(), TableC
         row: Int,
         column: Int,
     ): Component {
-        val cell = spreadsheet[row, column]
+        val cell = spreadsheet[table.convertRowIndexToModel(row), table.convertColumnIndexToModel(column)]
 
         val evaluatedValue = cell.evaluatedValue
 

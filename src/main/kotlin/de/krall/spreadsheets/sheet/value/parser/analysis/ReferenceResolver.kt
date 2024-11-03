@@ -115,7 +115,7 @@ object ReferenceResolver : TreeAnalyser {
 
         var column = -1
         while (isLetter(reader.c)) {
-            val value = reader.c.uppercaseChar() - 'A'
+            val value = reader.c.uppercaseChar() - 'A' + 1
             if (column != -1) {
                 column *= 26
                 column += value
@@ -124,6 +124,9 @@ object ReferenceResolver : TreeAnalyser {
             }
 
             reader.nextChar()
+        }
+        if (column != -1) {
+            column -= 1
         }
 
         var row = -1

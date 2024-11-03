@@ -339,7 +339,7 @@ private class SpreadsheetEngine(
     }
 
     private fun remove(node: Node) {
-        grid[node.row, node.column] = null
+        grid[node.column, node.row] = null
         val previousAttributes = node.update(CellAttributes.Blank)
 
         notifyNodeChanged(node, previousAttributes)
