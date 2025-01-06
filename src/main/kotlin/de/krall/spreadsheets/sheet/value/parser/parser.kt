@@ -32,7 +32,7 @@ private val PREFIX_OPERATORS = OperatorSet(
     TokenType.MINUS to SlPrefixExpression.Operator.MINUS,
 )
 
-private val LITERAL_EXPRESSION_START = TokenTypeSet.of(TokenType.NUMBER)
+private val LITERAL_EXPRESSION_START = TokenTypeSet.of(TokenType.NUMBER, TokenType.STRING)
 private val PARENTHESIZED_EXPRESSION_START = TokenTypeSet.of(TokenType.LPAREN)
 private val ATOMIC_EXPRESSION_START = TokenTypeSet.of(TokenType.IDENTIFIER) + PARENTHESIZED_EXPRESSION_START + LITERAL_EXPRESSION_START
 private val PREFIX_EXPRESSION_START = PREFIX_OPERATORS.types + ATOMIC_EXPRESSION_START
@@ -46,11 +46,14 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
     // Value
 
     fun parseValue(): Value {
-        return when {
-            at(TokenType.EQ) -> parseFormulaValue()
-            isAtNumberStatement() -> parseNumberValue()
-            else -> parseTextValue()
+        val span = span()
+        when {
+            at(TokenType.EQ) -> return parseFormulaValue()
+            isAtNumberStatement() -> return parseNumberValue()
         }
+        span.rollback()
+
+        return parseTextValue()
     }
 
     private fun parseFormulaValue(): Value.Formula {
@@ -58,15 +61,14 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
 
         advance() // EQ
 
-        val span = span()
-
-        while (!eof()) {
-            advance()
+        val text = buildString {
+            while (!eof()) {
+                append(token.text)
+                advance(includeWhitespace = true)
+            }
         }
 
-        val source = span.finish()
-
-        return Value.Formula(source.text)
+        return Value.Formula(text)
     }
 
     private fun parseNumberValue(): Value.Number {
@@ -76,25 +78,22 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
     }
 
     private fun parseTextValue(): Value.Text {
-        val span = span()
+        val statement = parseTextStatement()
 
-        while (!eof()) {
-            advance()
-        }
-
-        val source = span.finish()
-
-        return Value.Text(source.text)
+        return Value.Text(statement.text)
     }
 
     // Statement
 
     fun parseStatement(): SlStatement {
-        return when {
-            at(TokenType.EQ) -> parseFormulaStatement()
-            isAtNumberStatement() -> parseNumberStatement()
-            else -> parseTextStatement()
+        val span = span()
+        when {
+            at(TokenType.EQ) -> return parseFormulaStatement()
+            isAtNumberStatement() -> return parseNumberStatement()
         }
+        span.rollback()
+
+        return parseTextStatement()
     }
 
     private fun parseFormulaStatement(): SlFormulaStatement {
@@ -153,13 +152,20 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
     private fun parseTextStatement(): SlTextStatement {
         val span = span()
 
-        while (!eof()) {
-            advance()
+        val text = buildString {
+            advance(includeWhitespace = true)
+            while (!eof()) {
+                when {
+                    at(TokenType.STRING) -> append(token.string)
+                    else -> append(token.text)
+                }
+                advance(includeWhitespace = true)
+            }
         }
 
         val source = span.finish()
 
-        return SlTextStatement(source.text, source)
+        return SlTextStatement(text, source)
     }
 
     // Formula
@@ -373,6 +379,15 @@ class SlParser(tokens: TokenSequence, context: ProcessingContext) : AbstractPars
                 advance() // NUMBER
 
                 SlLiteral(number, span.finish())
+            }
+
+            at(TokenType.STRING) -> {
+                val span = span()
+
+                val string = token.string
+                advance() // STRING
+
+                SlLiteral(string, span.finish())
             }
 
             else -> error("precondition violated")

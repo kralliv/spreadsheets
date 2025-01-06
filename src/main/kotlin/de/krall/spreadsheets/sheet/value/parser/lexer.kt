@@ -25,8 +25,8 @@ class SlLexer(override val input: Segment) : TokenSequence {
 
         return when (kind) {
             is TokenKind.Normal -> Token(kind.type, segment)
-            is TokenKind.String -> Token(kind.type, segment, string = kind.string)
-            is TokenKind.Numeric -> Token(kind.type, segment, number = kind.number)
+            is TokenKind.String -> StringToken(kind.type, segment, kind.string)
+            is TokenKind.Numeric -> NumericToken(kind.type, segment, kind.number)
         }
     }
 
@@ -56,6 +56,8 @@ class SlLexer(override val input: Segment) : TokenSequence {
                     TokenKind.Normal(TokenType.DELIMITER)
                 }
             }
+
+            '"' -> readString()
 
             '=' -> {
                 reader.nextChar()
@@ -158,6 +160,30 @@ class SlLexer(override val input: Segment) : TokenSequence {
         }
 
         return TokenKind.Normal(TokenType.TEXT)
+    }
+
+    private fun readString(): TokenKind {
+        check(reader.c == '"')
+
+        reader.nextChar() // "
+
+        while (reader.hasChar()) {
+            when (reader.c) {
+                '"' -> break
+                '\\' -> {
+                    reader.nextChar()
+                    if (reader.hasChar()) {
+                        reader.putChar()
+                    }
+                }
+
+                else -> reader.putChar()
+            }
+        }
+
+        reader.nextChar() // "
+
+        return TokenKind.String(TokenType.STRING, reader.chars())
     }
 
     private sealed class TokenKind {

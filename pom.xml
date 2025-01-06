@@ -57,6 +57,11 @@
             <artifactId>fernice-reflare-access-jdk-10</artifactId>
             <version>${fernice.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.fernice</groupId>
+            <artifactId>refract</artifactId>
+            <version>17.0.2</version>
+        </dependency>
 
         <dependency>
             <groupId>org.swinglabs</groupId>

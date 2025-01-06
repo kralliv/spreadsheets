@@ -1,0 +1,1 @@
+STRING 0-27 '"started but \" never ended' 'started but " never ended'

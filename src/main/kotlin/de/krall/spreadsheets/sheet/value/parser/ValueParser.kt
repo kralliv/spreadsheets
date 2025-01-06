@@ -3,8 +3,8 @@ package de.krall.spreadsheets.sheet.value.parser
 import de.krall.spreadsheets.sheet.value.ParsedValue
 import de.krall.spreadsheets.sheet.value.Value
 import de.krall.spreadsheets.sheet.value.formula.Formula
-import de.krall.spreadsheets.sheet.value.parser.analysis.ReferenceResolver
-import de.krall.spreadsheets.sheet.value.parser.analysis.TypeResolver
+import de.krall.spreadsheets.sheet.value.parser.analysis.ReferenceResolution
+import de.krall.spreadsheets.sheet.value.parser.analysis.TypeResolution
 import de.krall.spreadsheets.sheet.value.parser.builder.FormulaBuilder
 import de.krall.spreadsheets.sheet.value.parser.builder.ParsedValueBuilder
 import de.krall.spreadsheets.sheet.value.parser.diagnotic.Diagnostic
@@ -69,8 +69,8 @@ class ValueParser {
     }
 
     private val analysers = listOf(
-        ReferenceResolver,
-        TypeResolver,
+        ReferenceResolution,
+        TypeResolution,
     )
 
     private fun analyse(element: SlElement, context: ProcessingContext) {

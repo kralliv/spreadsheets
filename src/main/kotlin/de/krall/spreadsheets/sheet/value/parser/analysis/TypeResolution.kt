@@ -22,7 +22,7 @@ import de.krall.spreadsheets.sheet.value.parser.type.FunctionDefinition
 import de.krall.spreadsheets.sheet.value.parser.type.ParameterTypes
 import de.krall.spreadsheets.sheet.value.parser.type.Type
 
-object TypeResolver : TreeAnalyser {
+object TypeResolution : TreeAnalyser {
 
     override fun check(tree: SlElement, context: ProcessingContext) {
         tree.accept(ExpressionTypeResolver(context), Unit)
@@ -60,7 +60,7 @@ object TypeResolver : TreeAnalyser {
 
         override fun visitReference(reference: SlReference, data: Unit): Type {
             val type = when (reference.referencingOrNull) {
-                null -> BuiltIns.Reference // FIXME
+                null -> BuiltIns.Error
                 is Reference -> BuiltIns.Reference
                 is ReferenceRange -> BuiltIns.ReferenceRange
             }

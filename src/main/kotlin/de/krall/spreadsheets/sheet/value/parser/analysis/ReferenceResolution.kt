@@ -13,7 +13,7 @@ import de.krall.spreadsheets.sheet.value.parser.tree.SlElement
 import de.krall.spreadsheets.sheet.value.parser.tree.SlReference
 import de.krall.spreadsheets.sheet.value.parser.tree.SlVisitorVoid
 
-object ReferenceResolver : TreeAnalyser {
+object ReferenceResolution : TreeAnalyser {
 
     override fun check(element: SlElement, context: ProcessingContext) {
         element.accept(object : SlVisitorVoid() {

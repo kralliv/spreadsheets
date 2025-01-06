@@ -1,0 +1,1 @@
+STRING 0-28 '"text with \u \" \\ escapes"' 'text with u " \ escapes'

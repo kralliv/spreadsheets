@@ -17,14 +17,14 @@ abstract class AbstractParser(
     override val token: Token
         get() = delegate.token
 
-    override fun advance() = delegate.advance()
+    override fun advance(includeWhitespace: Boolean) = delegate.advance(includeWhitespace)
 
     override fun eof(): Boolean = delegate.eof()
 
     override fun at(type: TokenType): Boolean = delegate.at(type)
     override fun at(types: TokenTypeSet): Boolean = delegate.at(types)
 
-    override fun lookahead(offset: Int): Token? = delegate.lookahead(offset)
+    override fun lookahead(offset: Int, includeWhitespace: Boolean): Token? = delegate.lookahead(offset, includeWhitespace)
 
     override fun span(): TokenSequenceWalker.Span = delegate.span()
 

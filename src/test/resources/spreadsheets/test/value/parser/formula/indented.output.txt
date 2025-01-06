@@ -1,4 +1,4 @@
-FORMULA_STATEMENT(0-5)
+FORMULA_STATEMENT(1-5)
   BINARY_EXPRESSION(2-5) PLUS <number>
     LITERAL(2-3) '1.0' <number>
     LITERAL(4-5) '1.0' <number>

@@ -46,7 +46,7 @@ class SpreadsheetTable(spreadsheet: Spreadsheet, val parser: ValueParser) : STab
         tableHeader?.defaultRenderer = HeaderCellRenderer()
         tableRowHeader?.defaultRenderer = RowHeaderCellRenderer()
 
-        isSortable = false
+        isSortable = true
 
         setDefaultRenderer(Value::class.java, ValueCellRenderer(this.spreadsheet))
         setDefaultEditor(Value::class.java, ValueCellEditor(parser))

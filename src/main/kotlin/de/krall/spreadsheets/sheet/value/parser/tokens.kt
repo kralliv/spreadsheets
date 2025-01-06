@@ -1,10 +1,8 @@
 package de.krall.spreadsheets.sheet.value.parser
 
-class Token(
+open class Token(
     val type: TokenType,
     val segment: Segment,
-    string: String? = null,
-    number: Double? = null,
 ) {
 
     val text: String
@@ -15,21 +13,32 @@ class Token(
     val length: Int
         get() = segment.length
 
-    private val _string = string
-    val string: String
-        get() = _string ?: error("token $type has no string")
+    open val string: String
+        get() = error("token $type has no string")
 
-    private val _number = number
-    val number: Double
-        get() = _number ?: error("token $type has no number")
+    open val number: Double
+        get() = error("token $type has no number")
 
     override fun toString(): String = "$type '$text'"
 }
+
+class StringToken(
+    type: TokenType,
+    segment: Segment,
+    override val string: String,
+) : Token(type, segment)
+
+class NumericToken(
+    type: TokenType,
+    segment: Segment,
+    override val number: Double,
+) : Token(type, segment)
 
 enum class TokenType {
     WHITESPACE,
     IDENTIFIER,
     NUMBER,
+    STRING,
     TEXT,
     TRUE,
     FALSE,
