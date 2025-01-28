@@ -1,0 +1,8 @@
+A1 F'divide(1,1)'
+
+A2 F'divide(B2, divide(1, C2))'
+B2 N'2'
+C2 F'D2'
+D2 N'3'
+
+A3 F'10 / 5'

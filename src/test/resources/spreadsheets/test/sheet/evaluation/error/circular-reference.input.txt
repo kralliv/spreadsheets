@@ -1,0 +1,5 @@
+A1 F'E1'
+B1 T'unaffected'
+C1 F'A1'
+D1 T'unaffected'
+E1 F'C1'

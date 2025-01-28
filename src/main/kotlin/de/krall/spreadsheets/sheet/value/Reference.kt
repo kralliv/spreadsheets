@@ -10,12 +10,20 @@ sealed interface Referencing
 
 data class Reference(val cell: Cell) : Referencing {
 
+    val row: Int
+        get() = cell.y
+
+    val column: Int
+        get() = cell.x
+
     override fun toString(): String {
         val column = cell.x.toColumnName()
         val row = (cell.y + 1).toString()
 
         return "$column$row"
     }
+
+    companion object
 }
 
 data class ReferenceRange(val area: Area) : Referencing {
@@ -59,6 +67,8 @@ data class ReferenceRange(val area: Area) : Referencing {
             else -> "?:?"
         }
     }
+
+    companion object
 }
 
 private fun Int.toColumnName(): String {

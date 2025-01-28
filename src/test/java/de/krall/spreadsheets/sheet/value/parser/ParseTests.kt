@@ -13,11 +13,11 @@ import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.assertEquals
 
-class ParseTest {
+class ParseTests {
 
     @TestFactory
     fun createTests(): Iterable<DynamicNode> {
-        val resources = TestCaseResource.resolve("spreadsheets/test/value/parser", "txt")
+        val resources = TestCaseResource.resolve("spreadsheets/test/sheet/value/parser", "txt")
 
         return resources.map { createTestCase(it) }
     }

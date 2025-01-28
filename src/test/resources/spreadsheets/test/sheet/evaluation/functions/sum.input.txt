@@ -1,0 +1,18 @@
+A1 F'sum(1,1)'
+
+A2 F'sum(B2, sum(1, C2))'
+B2 N'2'
+C2 F'D2'
+D2 N'3'
+
+A3 F'sum(A4:C6)'
+
+A4 N'1'
+B4 B
+C4 N'1'
+A5 B
+B5 N'1'
+C5 N'1'
+A6 B
+B6 N'1'
+C6 B

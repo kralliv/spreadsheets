@@ -1,0 +1,7 @@
+A1 E'DivisionByZero'
+A2 E'DivisionByZero'
+A3 E'DivisionByZero'
+B3 N'0.0'
+A4 E'DivisionByZero'
+B4 N'0.0'
+C4 N'1.0'

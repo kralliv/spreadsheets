@@ -30,7 +30,7 @@ object BuiltIns {
         FunctionDefinition("multiply", fixed(AnySingular, AnySingular), Number, MultiplyFunction),
         FunctionDefinition("divide", fixed(AnySingular, AnySingular), Number, DivideFunction),
         FunctionDefinition("modulo", fixed(AnySingular, AnySingular), Number, ModuloFunction),
-        FunctionDefinition("negate", fixed(AnySingular, AnySingular), Number, NegateFunction),
+        FunctionDefinition("negate", fixed(AnySingular), Number, NegateFunction),
         FunctionDefinition("pow", fixed(AnySingular, AnySingular), Number, PowFunction),
         FunctionDefinition("sqrt", fixed(AnySingular), Number, SqrtFunction),
 

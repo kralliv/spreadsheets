@@ -1,0 +1,6 @@
+A1 F'pow(1,1)'
+
+A2 F'pow(B2, pow(2, C2))'
+B2 N'2'
+C2 F'D2'
+D2 N'3'

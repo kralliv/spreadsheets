@@ -1,6 +1,7 @@
 package de.krall.spreadsheets.sheet
 
 import de.krall.spreadsheets.sheet.value.EvaluatedValue
+import de.krall.spreadsheets.sheet.value.Reference
 import de.krall.spreadsheets.sheet.value.Value
 import java.io.Closeable
 
@@ -35,3 +36,6 @@ interface SpreadsheetListener {
     fun cellChanged(cell: Cell, previousCell: Cell)
     fun cellUpdated(cell: Cell)
 }
+
+val Cell.reference: Reference
+    get() = Reference(de.krall.spreadsheets.sheet.grid.Cell(column, row))

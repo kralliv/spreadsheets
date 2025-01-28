@@ -1,0 +1,5 @@
+A1 F'negate(1)'
+
+A2 F'negate(-1)'
+
+A3 F'-1'

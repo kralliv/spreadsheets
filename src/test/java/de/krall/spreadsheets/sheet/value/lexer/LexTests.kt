@@ -11,11 +11,11 @@ import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.assertEquals
 
-class LexTest {
+class LexTests {
 
     @TestFactory
     fun createTests(): Iterable<DynamicNode> {
-        val resources = TestCaseResource.resolve("spreadsheets/test/value/lexer", "txt")
+        val resources = TestCaseResource.resolve("spreadsheets/test/sheet/value/lexer", "txt")
 
         return resources.map { createTestCase(it) }
     }

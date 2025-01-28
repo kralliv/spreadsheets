@@ -1,0 +1,5 @@
+A1 E'CircularDependency'
+B1 T'unaffected'
+C1 E'CircularDependency'
+D1 T'unaffected'
+E1 E'CircularDependency'
