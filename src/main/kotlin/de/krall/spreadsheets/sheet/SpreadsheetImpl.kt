@@ -9,7 +9,6 @@ import de.krall.spreadsheets.sheet.value.Reference
 import de.krall.spreadsheets.sheet.value.ReferenceRange
 import de.krall.spreadsheets.sheet.value.Referencing
 import de.krall.spreadsheets.sheet.value.Value
-import de.krall.spreadsheets.sheet.value.formula.Formula
 import de.krall.spreadsheets.sheet.value.formula.ReferenceResolver
 import de.krall.spreadsheets.sheet.value.parser.ValueParser
 import de.krall.spreadsheets.util.empty
@@ -21,6 +20,7 @@ import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.collections.asSequence
 import kotlin.concurrent.read
 import kotlin.concurrent.thread
 import kotlin.concurrent.write
@@ -376,10 +376,10 @@ private class SpreadsheetEngine(
     }
 
     private fun evaluateNode(node: Node) {
-        evaluateNode(node, mutableSetOf())
+        evaluateNode(node, emptySet())
     }
 
-    private fun evaluateNode(node: Node, ancestors: MutableSet<Node>): EvaluatedValue? {
+    private fun evaluateNode(node: Node, ancestors: Set<Node>): EvaluatedValue? {
         // If a node has already been evaluated we can safely use
         // the value. In case of circular dependencies the node would
         // have been invalidated before, thus would be unevaluated.
@@ -396,20 +396,10 @@ private class SpreadsheetEngine(
         // EvaluatedValue.Unevaluated implies that parsedValue was ParsedValue.Formula
         val formula = (node.attributes.parsedValue as ParsedValue.Formula).formula
 
-        establishDependencies(node, formula)
+        val referenceResolver = DynamicReferenceResolver(node, ancestors + node)
 
-        val dependencies = node.dependencies.map { dependencyNode ->
-            checkWriteRequest()
-
-            ancestors.add(node)
-            val result = evaluateNode(dependencyNode, ancestors)
-            ancestors.remove(node)
-            dependencyNode to result
-        }
-
-        checkWriteRequest()
-
-        val referenceResolver = DependencyReferenceResolver(dependencies)
+        // Last chance to cancel the evaluation on the level
+        if (isWriteRequested()) return EvaluatedValue.Error(ComputationError.Cancelled)
 
         val computedValue = try {
             formula.compute(referenceResolver)
@@ -426,42 +416,33 @@ private class SpreadsheetEngine(
         return evaluatedValue
     }
 
-    private fun establishDependencies(node: Node, formula: Formula) {
-        for (reference in formula.references) {
-            when (reference) {
-                is Reference -> {
-                    val dependencyNode = grid[reference.cell.x, reference.cell.y]
-                    if (dependencyNode != null) {
-                        dependencyNode.addDependent(node)
-                    } else {
-                        blankCells.addDependent(node, reference)
-                    }
-                }
-
-                is ReferenceRange -> {
-                    val dependencyNodes = grid.entries(reference.area)
-                    for (dependencyNode in dependencyNodes) {
-                        dependencyNode.value.addDependent(node)
-                    }
-
-                    blankCells.addDependent(node, reference)
-                }
-            }
-        }
-    }
-
-    private class DependencyReferenceResolver(val dependencies: List<Pair<Node, EvaluatedValue?>>) : ReferenceResolver {
+    private inner class DynamicReferenceResolver(
+        private val node: Node,
+        private val ancestors: Set<Node>,
+    ) : ReferenceResolver {
 
         override fun resolve(reference: Reference): ComputedValue {
-            return dependencies.find { (node, _) -> reference.cell.contains(node.column, node.row) }
-                ?.let { (_, value) -> value?.toComputedValue() }
+            val dependencyNode = grid[reference.cell.x, reference.cell.y]
+            if (dependencyNode != null) {
+                dependencyNode.addDependent(node)
+            } else {
+                blankCells.addDependent(node, reference)
+            }
+
+            return dependencyNode
+                ?.let { evaluateNode(dependencyNode, ancestors)?.toComputedValue() }
                 ?: ComputedValue.Blank
         }
 
         override fun resolve(referenceRange: ReferenceRange): Collection<ComputedValue> {
-            return dependencies.asSequence()
-                .filter { (node, _) -> referenceRange.area.contains(node.column, node.row) }
-                .mapNotNull { (_, value) -> value?.toComputedValue() }
+            val dependencyNodes = grid.entries(referenceRange.area)
+            for (dependencyNode in dependencyNodes) {
+                dependencyNode.value.addDependent(node)
+            }
+            blankCells.addDependent(node, referenceRange)
+
+            return dependencyNodes
+                .mapNotNull { dependencyNode -> evaluateNode(dependencyNode.value, ancestors)?.toComputedValue() }
                 .toList()
         }
     }
@@ -497,7 +478,7 @@ private class SpreadsheetEngine(
         lock.read {
             try {
                 block()
-            } catch (ignore: WriteRequestedException) {
+            } catch (_: WriteRequestedException) {
                 yield()
             }
         }
@@ -524,6 +505,10 @@ private class SpreadsheetEngine(
         if (writeRequest.get() != null) {
             throw WriteRequestedException()
         }
+    }
+
+    private fun isWriteRequested(): Boolean {
+        return writeRequest.get() != null
     }
 
     private fun awaitWriteRequest() {

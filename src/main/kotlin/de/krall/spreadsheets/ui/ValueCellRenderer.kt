@@ -51,6 +51,7 @@ class ValueCellRenderer(val spreadsheet: Spreadsheet) : SRendererLabel(), TableC
                 is ComputationError.BadFormula -> "#INVALID"
                 is ComputationError.CircularDependency -> "#REF"
                 is ComputationError.DivisionByZero -> "#DIV/0"
+                is ComputationError.Cancelled -> "#ABORT"
                 is ComputationError.Error -> "#ERROR"
             }
         }
@@ -74,6 +75,7 @@ class ValueCellRenderer(val spreadsheet: Spreadsheet) : SRendererLabel(), TableC
                 is ComputationError.BadFormula -> "The entered formula is invalid."
                 is ComputationError.CircularDependency -> "There are circular dependencies. Formulas must not reference each other."
                 is ComputationError.DivisionByZero -> "The evaluation encountered a division by zero."
+                is ComputationError.Cancelled -> "The evaluation was cancelled."
                 is ComputationError.Error -> "The evaluation encountered an error."
             }
         }

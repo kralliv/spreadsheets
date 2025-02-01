@@ -2,47 +2,21 @@ package de.krall.spreadsheets.sheet.value.parser.builder
 
 import de.krall.spreadsheets.sheet.value.Reference
 import de.krall.spreadsheets.sheet.value.ReferenceRange
-import de.krall.spreadsheets.sheet.value.Referencing
-import de.krall.spreadsheets.sheet.value.formula.Expression
-import de.krall.spreadsheets.sheet.value.formula.Formula
-import de.krall.spreadsheets.sheet.value.formula.FunctionCall
-import de.krall.spreadsheets.sheet.value.formula.NumberConstant
-import de.krall.spreadsheets.sheet.value.formula.ReferenceExpression
-import de.krall.spreadsheets.sheet.value.formula.ReferenceRangeExpression
-import de.krall.spreadsheets.sheet.value.formula.TextConstant
-import de.krall.spreadsheets.sheet.value.formula.function.AddFunction
-import de.krall.spreadsheets.sheet.value.formula.function.DereferenceFunction
-import de.krall.spreadsheets.sheet.value.formula.function.DivideFunction
-import de.krall.spreadsheets.sheet.value.formula.function.MinusFunction
-import de.krall.spreadsheets.sheet.value.formula.function.ModuloFunction
-import de.krall.spreadsheets.sheet.value.formula.function.MultiplyFunction
-import de.krall.spreadsheets.sheet.value.formula.function.NegateFunction
+import de.krall.spreadsheets.sheet.value.formula.*
+import de.krall.spreadsheets.sheet.value.formula.function.*
 import de.krall.spreadsheets.sheet.value.parser.analysis.function
 import de.krall.spreadsheets.sheet.value.parser.analysis.referencing
-import de.krall.spreadsheets.sheet.value.parser.tree.SlBinaryExpression
-import de.krall.spreadsheets.sheet.value.parser.tree.SlElement
-import de.krall.spreadsheets.sheet.value.parser.tree.SlExpression
-import de.krall.spreadsheets.sheet.value.parser.tree.SlFunctionCall
-import de.krall.spreadsheets.sheet.value.parser.tree.SlInvalid
-import de.krall.spreadsheets.sheet.value.parser.tree.SlLiteral
-import de.krall.spreadsheets.sheet.value.parser.tree.SlParenthesizedExpression
-import de.krall.spreadsheets.sheet.value.parser.tree.SlPrefixExpression
-import de.krall.spreadsheets.sheet.value.parser.tree.SlReference
-import de.krall.spreadsheets.sheet.value.parser.tree.SlVisitor
+import de.krall.spreadsheets.sheet.value.parser.tree.*
 
 object FormulaBuilder {
 
     fun build(formula: SlExpression): Formula {
         val expressionBuilder = ExpressionBuilder()
         val expression = formula.accept(expressionBuilder, State.Initial)
-        val references = expressionBuilder.finish()
-
-        return Formula(expression, references)
+        return Formula(expression)
     }
 
     private class ExpressionBuilder : SlVisitor<State, Expression>() {
-
-        private val references = mutableListOf<Referencing>()
 
         override fun visitElement(element: SlElement, data: State): Expression {
             error("unsupported element $element")
@@ -61,14 +35,12 @@ object FormulaBuilder {
         }
 
         override fun visitReference(reference: SlReference, data: State): Expression {
-            references.add(reference.referencing)
-
             var expression = when (val referencing = reference.referencing) {
                 is Reference -> ReferenceExpression(referencing)
                 is ReferenceRange -> ReferenceRangeExpression(referencing)
             }
 
-            if (!data.inFunctionArguments) {
+            if (reference.referencing is Reference && !data.inFunctionArguments) {
                 expression = FunctionCall(DereferenceFunction, listOf(expression))
             }
 
@@ -114,10 +86,6 @@ object FormulaBuilder {
             val arguments = functionCall.arguments.map { it.accept(this, argumentsState) }
 
             return FunctionCall(functionCall.function.function, arguments)
-        }
-
-        fun finish(): List<Referencing> {
-            return references.toList()
         }
     }
 
